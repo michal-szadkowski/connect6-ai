@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Prerequisites
 *.d
 
@@ -30,3 +31,7 @@
 *.exe
 *.out
 *.app
+=======
+/cmake-build-debug/*
+/.idea/*
+>>>>>>> 625aae0 (Implemented basic classes)
