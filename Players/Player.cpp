@@ -1,7 +1,7 @@
 #include "Player.h"
 
-void Player::SetColor(Color colorToSet) {
-    this->color = colorToSet;
+void Player::SetColor(Color newColor) {
+    this->color = newColor;
 }
 
 Color Player::GetColor() {

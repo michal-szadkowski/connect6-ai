@@ -8,7 +8,7 @@ class Player {
 private:
     Color color;
 public:
-    void SetColor(Color colorToSet);
+    void SetColor(Color newColor);
     Color GetColor();
     virtual Move GetMove() = 0;
 };

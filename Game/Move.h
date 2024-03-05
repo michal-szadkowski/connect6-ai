@@ -6,12 +6,14 @@
 
 struct Move {
 public:
-    short first;
-    short second;
+    char x1;
+    char y1;
+    char x2;
+    char y2;
 
     Color color;
 
-    Move(short first, short second, Color color);
+    Move(char x1, char y1, char x2, char y2, Color color);
 };
 
 

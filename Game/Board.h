@@ -3,33 +3,35 @@
 
 #include <vector>
 #include <string>
+#include <bitset>
 #include "Move.h"
 
 // assuming 19x19 board
 #define BOARD_SIZE 19
-#define BOARD_BYTES 46 // ceil(19*19/8)
 
 class Board {
 private:
-    unsigned char black[BOARD_BYTES];
-    unsigned char white[BOARD_BYTES];
+    std::bitset<BOARD_SIZE * BOARD_SIZE> black;
+    std::bitset<BOARD_SIZE * BOARD_SIZE> white;
+    bool firstMoveMade = false;
 
-    static void MakeSubMove(short movePos, unsigned char colorBoard[BOARD_BYTES]);
+    static int xy2n(int x, int y);
+    static std::pair<int, int> n2xy(int n);
+    static bool withinRange(int x);
 
-    bool IsEmpty(short movePos);
-
-    static std::pair<unsigned char, unsigned char> DecomposeToMajMinOffset(short movePos);
-
+    template<int dx, int dy>
+    int ConnectedCount(std::bitset<BOARD_SIZE * BOARD_SIZE> &board, char x, char y); //loop unrolling
 public:
-    Board();
-    explicit Board(const Board *board);
+    Board() = default;
+    Board(const Board &board) = default;
 
-    bool IsLegal(const Move &move);
-    std::vector<Move> GetMoves();
-    bool MakeMove(const Move &move);
+    bool Get(char x, char y, Color color);
+    void Set(char x, char y, Color color);
 
-    Color CheckForEnd();
-    Color CheckForEndAfter(Move Move);
+    bool CheckForConnectedAt(char x, char y, Color color);
+
+    bool IsEmpty(char x, char y);
+    bool IsFirstMoveMade() const;
 };
 
 

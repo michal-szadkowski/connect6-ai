@@ -6,12 +6,24 @@
 #include "../Players/Player.h"
 
 class Game {
-    Board board;
+private:
     Player &black;
     Player &white;
+    Color turn = Black;
+    Board board;
+
 public:
+
     Game(Player &black, Player &white);
+
+    std::vector<Move> GetMoves();
+    bool IsLegal(const Move &move);
+    bool MakeMove(const Move &move);
+
+    Color CheckForEndAfter(Move move);
+
     Color Play();
+    void PrintBoard();
 
 };
 
