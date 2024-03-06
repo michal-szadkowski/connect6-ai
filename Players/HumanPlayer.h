@@ -6,7 +6,7 @@
 
 class HumanPlayer : public Player {
 public:
-    Move GetMove() override;
+    Move GetMove(Board &board) override;
 };
 
 

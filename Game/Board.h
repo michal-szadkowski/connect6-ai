@@ -13,25 +13,24 @@ class Board {
 private:
     std::bitset<BOARD_SIZE * BOARD_SIZE> black;
     std::bitset<BOARD_SIZE * BOARD_SIZE> white;
-    bool firstMoveMade = false;
+    int stonesPlaced = 0;
 
-    static int xy2n(int x, int y);
+    static int xy2n(const StonePos &pos);
     static std::pair<int, int> n2xy(int n);
-    static bool withinRange(int x);
 
     template<int dx, int dy>
-    int ConnectedCount(std::bitset<BOARD_SIZE * BOARD_SIZE> &board, char x, char y); //loop unrolling
+    int ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, const StonePos &pos) const;
 public:
     Board() = default;
     Board(const Board &board) = default;
 
-    bool Get(char x, char y, Color color);
-    void Set(char x, char y, Color color);
+    bool IsEmpty(const StonePos &pos) const;
+    bool Get(const StonePos &pos, Color color) const;
+    void Set(const StonePos &pos, Color color);
 
-    bool CheckForConnectedAt(char x, char y, Color color);
+    bool CheckForConnectedAt(const StonePos &pos, Color color) const;
 
-    bool IsEmpty(char x, char y);
-    bool IsFirstMoveMade() const;
+    int StonesPlacedCount() const;
 };
 
 

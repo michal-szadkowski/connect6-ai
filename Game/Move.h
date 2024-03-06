@@ -3,17 +3,15 @@
 
 
 #include "Color.h"
+#include "StonePos.h"
 
-struct Move {
+class Move {
 public:
-    char x1;
-    char y1;
-    char x2;
-    char y2;
-
+    StonePos first;
+    StonePos second;
     Color color;
 
-    Move(char x1, char y1, char x2, char y2, Color color);
+    Move(StonePos first, StonePos second, Color color) : first(first), second(second), color(color) {}
 };
 
 

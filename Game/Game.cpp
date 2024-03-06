@@ -15,17 +15,18 @@ std::vector<Move> Game::GetMoves() {
 
 bool Game::MakeMove(const Move &move) {
     if (!IsLegal(move))
-        throw std::invalid_argument("move");;
-    board.Set(move.x1, move.y1, move.color);
-    if (move.x2 >= 0 && move.y2 >= 0)
-        board.Set(move.x2, move.y2, move.color);
+        throw std::invalid_argument("move");
+    board.Set(move.first, move.color);
+    if (move.second != StonePos::Empty())
+        board.Set(move.second, move.color);
     turn = Color(-turn);
     return true;
 }
 
 Color Game::CheckForEndAfter(Move move) {
-    bool connected = board.CheckForConnectedAt(move.x1, move.y1, move.color);
-    connected |= board.CheckForConnectedAt(move.x2, move.y2, move.color);
+    bool connected = board.CheckForConnectedAt(move.first, move.color);
+    if (move.second != StonePos::Empty())
+        connected |= board.CheckForConnectedAt(move.second, move.color);
     return connected ? move.color : None;
 }
 
@@ -33,12 +34,12 @@ Color Game::CheckForEndAfter(Move move) {
 Color Game::Play() {
     Color win = None;
     while (win == None) {
-        auto move = black.GetMove();
+        auto move = black.GetMove(board);
         MakeMove(move);
         win = CheckForEndAfter(move);
         PrintBoard();
         if (win != None) break;
-        move = white.GetMove();
+        move = white.GetMove(board);
         MakeMove(move);
         PrintBoard();
     }
@@ -48,9 +49,13 @@ Color Game::Play() {
 
 bool Game::IsLegal(const Move &move) {
     if (move.color != turn) return false;
-    if (!board.IsEmpty(move.x1, move.y1))
+    if (move.first == move.second)return false;
+    if (!board.IsEmpty(move.first))
         return false;
-    if (board.IsFirstMoveMade() && (move.x2 >= 0 || move.y2 >= 0) && !board.IsEmpty(move.x2, move.y2))
+    if (move.second == StonePos::Empty()) {
+        if ((board.StonesPlacedCount() != 0))
+            return false;
+    } else if (!board.IsEmpty(move.second))
         return false;
     return true;
 }
@@ -58,8 +63,8 @@ bool Game::IsLegal(const Move &move) {
 void Game::PrintBoard() {
     for (char i = 0; i < BOARD_SIZE; ++i) {
         for (char j = 0; j < BOARD_SIZE; ++j) {
-            bool w = board.Get(i, j, White);
-            bool b = board.Get(i, j, Black);
+            bool w = board.Get({i, j}, White);
+            bool b = board.Get({i, j}, Black);
             char s = w ? 'X' : b ? 'O' : '.';
             std::cout << s;
         }

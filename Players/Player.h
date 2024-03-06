@@ -3,6 +3,7 @@
 
 
 #include "../Game/Move.h"
+#include "../Game/Board.h"
 
 class Player {
 private:
@@ -10,7 +11,7 @@ private:
 public:
     void SetColor(Color newColor);
     Color GetColor();
-    virtual Move GetMove() = 0;
+    virtual Move GetMove(Board &board) = 0;
 };
 
 
