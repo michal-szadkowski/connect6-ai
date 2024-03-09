@@ -61,6 +61,12 @@ int Board::StonesPlacedCount() const {
     return stonesPlaced;
 }
 
+Color Board::CheckWinAfter(const StonePos &pos, Color color) const {
+    if (StonesPlacedCount() == BOARD_SIZE * BOARD_SIZE)
+        return Color::Draw;
+    return CheckForConnectedAt(pos, color) ? color : Color::None;
+}
+
 
 bool InBoard(const StonePos &pos) {
     if (pos.GetX() < 0 || pos.GetX() >= BOARD_SIZE) return false;

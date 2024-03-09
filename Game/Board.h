@@ -27,6 +27,7 @@ public:
     void Set(const StonePos &pos, Color color);
 
     bool CheckForConnectedAt(const StonePos &pos, Color color) const;
+    Color CheckWinAfter(const StonePos &pos, Color color) const;
 
     int StonesPlacedCount() const;
 };

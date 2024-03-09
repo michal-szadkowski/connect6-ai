@@ -24,17 +24,17 @@ bool Game::MakeMove(const Move &move) {
 }
 
 Color Game::CheckForEndAfter(Move move) {
-    bool connected = board.CheckForConnectedAt(move.first, move.color);
-    if (move.second != StonePos::Empty())
-        connected |= board.CheckForConnectedAt(move.second, move.color);
-    return connected ? move.color : Color::None;
+    Color col = board.CheckWinAfter(move.first, move.color);
+    if (col == Color::None && move.second != StonePos::Empty())
+        col = board.CheckWinAfter(move.second, move.color);
+    return col;
 }
 
 
 Color Game::Play() {
     Color win = Color::None;
     Move move = Move(StonePos::Empty(), StonePos::Empty(), Color::None);
-    while (win == Color::None) {
+    while (win == Color::None || win == Color::Draw) {
         move = black.GetMove(board, move);
         MakeMove(move);
         win = CheckForEndAfter(move);
@@ -44,7 +44,9 @@ Color Game::Play() {
         MakeMove(move);
         PrintBoard();
     }
-    std::cout << (win == Color::Black ? "black " : "white ") << "wins";
+    if (win == Color::Black) std::cout << "black";
+    if (win == Color::White) std::cout << "white";
+    else std::cout << "draw";
     return win;
 }
 
