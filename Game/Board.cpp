@@ -8,7 +8,7 @@ bool Board::IsEmpty(const StonePos &pos) const {
 }
 
 bool Board::CheckForConnectedAt(const StonePos &pos, Color color) const {
-    auto &board = color == Black ? black : white;
+    auto &board = color == Color::Black ? black : white;
     bool center = board.test(xy2n(pos));
     if (!center) return false;
 
@@ -33,17 +33,17 @@ bool Board::CheckForConnectedAt(const StonePos &pos, Color color) const {
 
 
 bool Board::Get(const StonePos &pos, Color color) const {
-    if (color == Black)
+    if (color == Color::Black)
         return black[xy2n(pos)];
-    if (color == White)
+    if (color == Color::White)
         return white[xy2n(pos)];
     return false;
 }
 
 void Board::Set(const StonePos &pos, Color color) {
-    if (color == Black)
+    if (color == Color::Black)
         black.set(xy2n(pos));
-    if (color == White)
+    if (color == Color::White)
         white.set(xy2n(pos));
     ++stonesPlaced;
 }
@@ -55,12 +55,6 @@ int Board::xy2n(const StonePos &pos) {
     if (pos.GetY() >= BOARD_SIZE || pos.GetY() < 0)
         throw std::out_of_range("y");
     return pos.GetX() * BOARD_SIZE + pos.GetY();
-}
-
-std::pair<int, int> Board::n2xy(int n) {
-    if (n >= BOARD_SIZE * BOARD_SIZE)
-        throw std::out_of_range("");
-    return {n / BOARD_SIZE, n % BOARD_SIZE};
 }
 
 int Board::StonesPlacedCount() const {

@@ -16,8 +16,6 @@ private:
     int stonesPlaced = 0;
 
     static int xy2n(const StonePos &pos);
-    static std::pair<int, int> n2xy(int n);
-
     template<int dx, int dy>
     int ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, const StonePos &pos) const;
 public:

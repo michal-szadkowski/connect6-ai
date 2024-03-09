@@ -9,11 +9,10 @@ class Game {
 private:
     Player &black;
     Player &white;
-    Color turn = Black;
+    Color turn = Color::Black;
     Board board;
 
 public:
-
     Game(Player &black, Player &white);
 
     std::vector<Move> GetMoves();

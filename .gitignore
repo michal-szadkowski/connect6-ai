@@ -32,6 +32,6 @@
 *.out
 *.app
 =======
-/cmake-build-debug/*
+/cmake-build-*/*
 /.idea/*
 >>>>>>> 625aae0 (Implemented basic classes)

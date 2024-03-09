@@ -7,11 +7,11 @@
 
 class Player {
 private:
-    Color color;
+    Color color = Color::None;
 public:
     void SetColor(Color newColor);
     Color GetColor();
-    virtual Move GetMove(Board &board) = 0;
+    virtual Move GetMove(const Board &board, const Move &prevMove) = 0;
 };
 
 

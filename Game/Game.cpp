@@ -4,8 +4,8 @@
 
 Game::Game(Player &black, Player &white) : black(black), white(white) {
     board = Board();
-    black.SetColor(Black);
-    white.SetColor(White);
+    black.SetColor(Color::Black);
+    white.SetColor(Color::White);
 }
 
 std::vector<Move> Game::GetMoves() {
@@ -19,7 +19,7 @@ bool Game::MakeMove(const Move &move) {
     board.Set(move.first, move.color);
     if (move.second != StonePos::Empty())
         board.Set(move.second, move.color);
-    turn = Color(-turn);
+    turn = static_cast<Color>(-static_cast<int> (turn));
     return true;
 }
 
@@ -27,23 +27,24 @@ Color Game::CheckForEndAfter(Move move) {
     bool connected = board.CheckForConnectedAt(move.first, move.color);
     if (move.second != StonePos::Empty())
         connected |= board.CheckForConnectedAt(move.second, move.color);
-    return connected ? move.color : None;
+    return connected ? move.color : Color::None;
 }
 
 
 Color Game::Play() {
-    Color win = None;
-    while (win == None) {
-        auto move = black.GetMove(board);
+    Color win = Color::None;
+    Move move = Move(StonePos::Empty(), StonePos::Empty(), Color::None);
+    while (win == Color::None) {
+        move = black.GetMove(board, move);
         MakeMove(move);
         win = CheckForEndAfter(move);
         PrintBoard();
-        if (win != None) break;
-        move = white.GetMove(board);
+        if (win != Color::None) break;
+        move = white.GetMove(board, move);
         MakeMove(move);
         PrintBoard();
     }
-    std::cout << win;
+    std::cout << (win == Color::Black ? "black " : "white ") << "wins";
     return win;
 }
 
@@ -63,8 +64,8 @@ bool Game::IsLegal(const Move &move) {
 void Game::PrintBoard() {
     for (char i = 0; i < BOARD_SIZE; ++i) {
         for (char j = 0; j < BOARD_SIZE; ++j) {
-            bool w = board.Get({i, j}, White);
-            bool b = board.Get({i, j}, Black);
+            bool w = board.Get({i, j}, Color::White);
+            bool b = board.Get({i, j}, Color::Black);
             char s = w ? 'X' : b ? 'O' : '.';
             std::cout << s;
         }

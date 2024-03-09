@@ -6,7 +6,7 @@
 
 class HumanPlayer : public Player {
 public:
-    Move GetMove(Board &board) override;
+    Move GetMove(const Board &board, const Move &prevMove) override;
 };
 
 
