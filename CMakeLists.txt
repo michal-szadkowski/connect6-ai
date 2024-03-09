@@ -17,4 +17,6 @@ add_executable(connect6_ai main.cpp
         Game/Color.h
         Game/StonePos.h
         Game/StonePos.cpp
+        Players/RandomPlayer.cpp
+        Players/RandomPlayer.h
 )

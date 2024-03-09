@@ -45,8 +45,8 @@ Color Game::Play() {
         PrintBoard();
     }
     if (win == Color::Black) std::cout << "black";
-    if (win == Color::White) std::cout << "white";
-    else std::cout << "draw";
+    else if (win == Color::White) std::cout << "white";
+    else if (win == Color::Draw)std::cout << "draw";
     return win;
 }
 
@@ -73,5 +73,6 @@ void Game::PrintBoard() {
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 }
 
