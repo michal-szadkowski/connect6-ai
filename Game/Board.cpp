@@ -67,6 +67,17 @@ Color Board::CheckWinAfter(const StonePos &pos, Color color) const {
     return CheckForConnectedAt(pos, color) ? color : Color::None;
 }
 
+std::vector<StonePos> Board::GetAllEmpty() const {
+    std::vector<StonePos> empty(BOARD_SIZE * BOARD_SIZE - StonesPlacedCount());
+    for (char i = 0; i < BOARD_SIZE; ++i) {
+        for (char j = 0; j < BOARD_SIZE; ++j) {
+            if (IsEmpty({i, j}))
+                empty.emplace_back(i, j);
+        }
+    }
+    return empty;
+}
+
 
 bool InBoard(const StonePos &pos) {
     if (pos.GetX() < 0 || pos.GetX() >= BOARD_SIZE) return false;

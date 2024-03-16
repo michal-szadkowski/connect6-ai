@@ -22,6 +22,7 @@ public:
     Board() = default;
     Board(const Board &board) = default;
 
+    std::vector<StonePos> GetAllEmpty() const;
     bool IsEmpty(const StonePos &pos) const;
     bool Get(const StonePos &pos, Color color) const;
     void Set(const StonePos &pos, Color color);

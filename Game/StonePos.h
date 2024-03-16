@@ -7,7 +7,9 @@ class StonePos {
     char x;
     char y;
 public:
-    static StonePos Empty() { return {-1, -1}; }
+    static StonePos Empty() { return {}; }
+
+    StonePos() : x(-1), y(-1) {}
 
     StonePos(char x, char y) : x(x), y(y) {}
 

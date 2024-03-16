@@ -12,6 +12,7 @@ private:
     Color turn = Color::Black;
     Board board;
 
+    void ChangeTurn();
 public:
     Game(Player &black, Player &white);
 

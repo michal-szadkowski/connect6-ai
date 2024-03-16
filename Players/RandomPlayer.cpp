@@ -14,8 +14,8 @@ Move RandomPlayer::GetMove(const Board &board, const Move &prevMove) {
 StonePos RandomPlayer::GetRandomPos(const Board &board, StonePos prev) {
     char x, y;
     do {
-        x = static_cast<char>( rng());
-        y = static_cast<char>( rng());
+        x = static_cast<char>(rng());
+        y = static_cast<char>(rng());
     } while (!board.IsEmpty({x, y}) || prev == StonePos(x, y));
     return {x, y};
 }
@@ -23,6 +23,7 @@ StonePos RandomPlayer::GetRandomPos(const Board &board, StonePos prev) {
 RandomPlayer::RandomPlayer() {
     std::random_device randomDevice;
     std::mt19937 mt(randomDevice());
-    this->rng = [d = std::uniform_int_distribution<int>(0, BOARD_SIZE - 1), mt] mutable { return d(mt); };
+    std::uniform_int_distribution<int> d(0, BOARD_SIZE - 1);
+    this->rng = [d, mt] mutable { return d(mt); };
 }
 

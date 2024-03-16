@@ -16,17 +16,18 @@ std::vector<Move> Game::GetMoves() {
 bool Game::MakeMove(const Move &move) {
     if (!IsLegal(move))
         throw std::invalid_argument("move");
-    board.Set(move.first, move.color);
-    if (move.second != StonePos::Empty())
-        board.Set(move.second, move.color);
-    turn = static_cast<Color>(-static_cast<int> (turn));
+    board.Set(move.GetFirst(), move.GetColor());
+    if (move.GetSecond() != StonePos::Empty())
+        board.Set(move.GetSecond(), move.GetColor());
+    ChangeTurn();
     return true;
 }
 
+
 Color Game::CheckForEndAfter(Move move) {
-    Color col = board.CheckWinAfter(move.first, move.color);
-    if (col == Color::None && move.second != StonePos::Empty())
-        col = board.CheckWinAfter(move.second, move.color);
+    Color col = board.CheckWinAfter(move.GetFirst(), move.GetColor());
+    if (col == Color::None && move.GetSecond() != StonePos::Empty())
+        col = board.CheckWinAfter(move.GetSecond(), move.GetColor());
     return col;
 }
 
@@ -42,6 +43,7 @@ Color Game::Play() {
         if (win != Color::None) break;
         move = white.GetMove(board, move);
         MakeMove(move);
+        win = CheckForEndAfter(move);
         PrintBoard();
     }
     if (win == Color::Black) std::cout << "black";
@@ -51,14 +53,14 @@ Color Game::Play() {
 }
 
 bool Game::IsLegal(const Move &move) {
-    if (move.color != turn) return false;
-    if (move.first == move.second)return false;
-    if (!board.IsEmpty(move.first))
+    if (move.GetColor() != turn) return false;
+    if (move.GetFirst() == move.GetSecond())return false;
+    if (!board.IsEmpty(move.GetFirst()))
         return false;
-    if (move.second == StonePos::Empty()) {
+    if (move.IsHalf()) {
         if ((board.StonesPlacedCount() != 0))
             return false;
-    } else if (!board.IsEmpty(move.second))
+    } else if (!board.IsEmpty(move.GetSecond()))
         return false;
     return true;
 }
@@ -74,5 +76,10 @@ void Game::PrintBoard() {
         std::cout << std::endl;
     }
     std::cout << std::endl;
+}
+
+void Game::ChangeTurn() {
+    if (turn == Color::White)turn = Color::Black;
+    else if (turn == Color::Black) turn = Color::White;
 }
 

@@ -19,4 +19,9 @@ add_executable(connect6_ai main.cpp
         Game/StonePos.cpp
         Players/RandomPlayer.cpp
         Players/RandomPlayer.h
+        Mcts/Tree.cpp
+        Mcts/Tree.h
+        Mcts/Node.cpp
+        Mcts/Node.h
+        Mcts/Tree.cpp
 )
