@@ -8,5 +8,12 @@ enum class Color : char {
     Draw = 2
 };
 
+constexpr Color Reverse(Color c) {
+    if (c == Color::White)
+        return Color::Black;
+    else if (c == Color::Black)
+        return Color::White;
+}
+
 
 #endif //CONNECT6_AI_COLOR_H

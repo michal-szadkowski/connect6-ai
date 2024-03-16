@@ -1,10 +1,69 @@
 #include <stdexcept>
 #include "Board.h"
 
+bool InBoard(const StonePos &pos) {
+    if (pos.GetX() < 0 || pos.GetX() >= BOARD_SIZE) return false;
+    if (pos.GetY() < 0 || pos.GetY() >= BOARD_SIZE) return false;
+    return true;
+}
+
 bool Board::IsEmpty(const StonePos &pos) const {
     bool blackBit = black[xy2n(pos)];
     bool whiteBit = white[xy2n(pos)];
     return !(blackBit || whiteBit);
+}
+
+bool Board::Get(const StonePos &pos, Color color) const {
+    if (color == Color::Black)
+        return black[xy2n(pos)];
+    if (color == Color::White)
+        return white[xy2n(pos)];
+    return false;
+}
+
+void Board::Set(const StonePos &pos, Color color) {
+    if (color != turn) throw std::invalid_argument("color");
+    if (color == Color::Black)
+        black.set(xy2n(pos));
+    if (color == Color::White)
+        white.set(xy2n(pos));
+    ++stonesPlaced;
+    if (ExpectingFirstMove())ChangeTurn();
+
+}
+
+int Board::StonesPlacedCount() const {
+    return stonesPlaced;
+}
+
+bool Board::ExpectingFirstMove() const {
+    return StonesPlacedCount() % 2;
+}
+
+Color Board::GetTurn() const {
+    return turn;
+}
+void Board::ChangeTurn() {
+    turn = Reverse(turn);
+}
+
+
+std::vector<StonePos> Board::GetAllEmpty() const {
+    std::vector<StonePos> empty;
+    for (char i = 0; i < BOARD_SIZE; ++i) {
+        for (char j = 0; j < BOARD_SIZE; ++j) {
+            if (IsEmpty({i, j}))
+                empty.emplace_back(i, j);
+        }
+    }
+    return empty;
+}
+
+
+Color Board::CheckWinAfter(const StonePos &pos, Color color) const {
+    if (StonesPlacedCount() == BOARD_SIZE * BOARD_SIZE)
+        return Color::Draw;
+    return CheckForConnectedAt(pos, color) ? color : Color::None;
 }
 
 bool Board::CheckForConnectedAt(const StonePos &pos, Color color) const {
@@ -31,60 +90,6 @@ bool Board::CheckForConnectedAt(const StonePos &pos, Color color) const {
     return false;
 }
 
-
-bool Board::Get(const StonePos &pos, Color color) const {
-    if (color == Color::Black)
-        return black[xy2n(pos)];
-    if (color == Color::White)
-        return white[xy2n(pos)];
-    return false;
-}
-
-void Board::Set(const StonePos &pos, Color color) {
-    if (color == Color::Black)
-        black.set(xy2n(pos));
-    if (color == Color::White)
-        white.set(xy2n(pos));
-    ++stonesPlaced;
-}
-
-
-int Board::xy2n(const StonePos &pos) {
-    if (pos.GetX() >= BOARD_SIZE || pos.GetX() < 0)
-        throw std::out_of_range("x");
-    if (pos.GetY() >= BOARD_SIZE || pos.GetY() < 0)
-        throw std::out_of_range("y");
-    return pos.GetX() * BOARD_SIZE + pos.GetY();
-}
-
-int Board::StonesPlacedCount() const {
-    return stonesPlaced;
-}
-
-Color Board::CheckWinAfter(const StonePos &pos, Color color) const {
-    if (StonesPlacedCount() == BOARD_SIZE * BOARD_SIZE)
-        return Color::Draw;
-    return CheckForConnectedAt(pos, color) ? color : Color::None;
-}
-
-std::vector<StonePos> Board::GetAllEmpty() const {
-    std::vector<StonePos> empty(BOARD_SIZE * BOARD_SIZE - StonesPlacedCount());
-    for (char i = 0; i < BOARD_SIZE; ++i) {
-        for (char j = 0; j < BOARD_SIZE; ++j) {
-            if (IsEmpty({i, j}))
-                empty.emplace_back(i, j);
-        }
-    }
-    return empty;
-}
-
-
-bool InBoard(const StonePos &pos) {
-    if (pos.GetX() < 0 || pos.GetX() >= BOARD_SIZE) return false;
-    if (pos.GetY() < 0 || pos.GetY() >= BOARD_SIZE) return false;
-    return true;
-}
-
 template<int dx, int dy>
 int Board::ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, const StonePos &pos) const {
     StonePos p = pos;
@@ -96,3 +101,12 @@ int Board::ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, con
     }
     return 5;
 }
+
+int Board::xy2n(const StonePos &pos) {
+    if (pos.GetX() >= BOARD_SIZE || pos.GetX() < 0)
+        throw std::out_of_range("x");
+    if (pos.GetY() >= BOARD_SIZE || pos.GetY() < 0)
+        throw std::out_of_range("y");
+    return pos.GetX() * BOARD_SIZE + pos.GetY();
+}
+

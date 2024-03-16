@@ -6,8 +6,14 @@
 
 class Tree {
 private:
-    std::unique_ptr<Node> root;
+    std::shared_ptr<Node> root;
+    Board rootBoard;
+public:
+    Tree(const Board &board);
+
     bool PromoteToRoot(const Node &node);
+
+    std::shared_ptr<Node> Select();
     
 };
 

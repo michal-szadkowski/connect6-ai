@@ -9,14 +9,11 @@ class Game {
 private:
     Player &black;
     Player &white;
-    Color turn = Color::Black;
     Board board;
 
-    void ChangeTurn();
 public:
     Game(Player &black, Player &white);
 
-    std::vector<Move> GetMoves();
     bool IsLegal(const Move &move);
     bool MakeMove(const Move &move);
 

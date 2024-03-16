@@ -8,10 +8,6 @@ Game::Game(Player &black, Player &white) : black(black), white(white) {
     white.SetColor(Color::White);
 }
 
-std::vector<Move> Game::GetMoves() {
-    //TODO
-    return std::vector<Move>();
-}
 
 bool Game::MakeMove(const Move &move) {
     if (!IsLegal(move))
@@ -19,7 +15,6 @@ bool Game::MakeMove(const Move &move) {
     board.Set(move.GetFirst(), move.GetColor());
     if (move.GetSecond() != StonePos::Empty())
         board.Set(move.GetSecond(), move.GetColor());
-    ChangeTurn();
     return true;
 }
 
@@ -53,8 +48,8 @@ Color Game::Play() {
 }
 
 bool Game::IsLegal(const Move &move) {
-    if (move.GetColor() != turn) return false;
-    if (move.GetFirst() == move.GetSecond())return false;
+    if (move.GetColor() != board.GetTurn()) return false;
+    if (move.GetFirst() == move.GetSecond()) return false;
     if (!board.IsEmpty(move.GetFirst()))
         return false;
     if (move.IsHalf()) {
@@ -78,8 +73,4 @@ void Game::PrintBoard() {
     std::cout << std::endl;
 }
 
-void Game::ChangeTurn() {
-    if (turn == Color::White)turn = Color::Black;
-    else if (turn == Color::Black) turn = Color::White;
-}
 
