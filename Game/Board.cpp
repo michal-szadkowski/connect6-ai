@@ -22,21 +22,22 @@ bool Board::Get(const StonePos &pos, Color color) const {
 }
 
 void Board::Set(const StonePos &pos, Color color) {
-    if (color != turn) throw std::invalid_argument("color");
+    if (color != turn)
+        throw std::invalid_argument("color");
     if (color == Color::Black)
         black.set(xy2n(pos));
     if (color == Color::White)
         white.set(xy2n(pos));
     ++stonesPlaced;
-    if (ExpectingFirstMove())ChangeTurn();
-
+    if (ExpectingHalfMove())
+        ChangeTurn();
 }
 
 int Board::StonesPlacedCount() const {
     return stonesPlaced;
 }
 
-bool Board::ExpectingFirstMove() const {
+bool Board::ExpectingHalfMove() const {
     return StonesPlacedCount() % 2;
 }
 
@@ -60,10 +61,16 @@ std::vector<StonePos> Board::GetAllEmpty() const {
 }
 
 
-Color Board::CheckWinAfter(const StonePos &pos, Color color) const {
-    if (StonesPlacedCount() == BOARD_SIZE * BOARD_SIZE)
+Color Board::CheckWinAfter(const StonePos &pos, Color color) {
+    if (StonesPlacedCount() == BOARD_SIZE * BOARD_SIZE) {
+        turn = Color::None;
         return Color::Draw;
-    return CheckForConnectedAt(pos, color) ? color : Color::None;
+    }
+    if (CheckForConnectedAt(pos, color)) {
+        turn = Color::None;
+        return color;
+    }
+    return Color::None;
 }
 
 bool Board::CheckForConnectedAt(const StonePos &pos, Color color) const {

@@ -8,3 +8,5 @@ StonePos &StonePos::operator+=(const StonePos &pos) {
     *this = *this + pos;
     return *this;
 }
+
+//TODO comparing

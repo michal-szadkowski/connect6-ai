@@ -6,12 +6,10 @@
 
 class RandomPlayer : public Player {
 private:
-    std::function<int(void)> rng;
-    StonePos GetRandomPos(const Board &board, StonePos prev);
+    static int RandomCoord();
+    static StonePos GetRandomPos(const Board &board, StonePos prev);
 public:
-    RandomPlayer();
     Move GetMove(const Board &board, const Move &prevMove) override;
-
 };
 
 

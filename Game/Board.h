@@ -29,10 +29,10 @@ public:
     Color GetTurn() const;
 
     bool CheckForConnectedAt(const StonePos &pos, Color color) const;
-    Color CheckWinAfter(const StonePos &pos, Color color) const;
+    Color CheckWinAfter(const StonePos &pos, Color color);
 
     int StonesPlacedCount() const;
-    bool ExpectingFirstMove() const;
+    bool ExpectingHalfMove() const;
 };
 
 

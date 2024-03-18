@@ -24,4 +24,6 @@ add_executable(connect6_ai main.cpp
         Mcts/Node.cpp
         Mcts/Node.h
         Mcts/Tree.cpp
+        Players/MctsPlayer.cpp
+        Players/MctsPlayer.h
 )

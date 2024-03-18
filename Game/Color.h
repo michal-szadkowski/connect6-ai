@@ -13,6 +13,7 @@ constexpr Color Reverse(Color c) {
         return Color::Black;
     else if (c == Color::Black)
         return Color::White;
+    return c;
 }
 
 

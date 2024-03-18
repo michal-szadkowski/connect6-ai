@@ -4,11 +4,15 @@ bool Tree::PromoteToRoot(const Node &node) {
     return false;
 }
 
+Tree::Tree() : Tree(Board()) {
+}
+
 Tree::Tree(const Board &board) {
     rootBoard = board;
-    Color col = !board.ExpectingFirstMove() ? board.GetTurn() : Reverse(board.GetTurn());
-    root = std::make_shared<Node>(std::weak_ptr<Node>(), StonePos::Empty(), col, !board.ExpectingFirstMove());
+    Color col = !board.ExpectingHalfMove() ? board.GetTurn() : Reverse(board.GetTurn());
+    root = std::make_shared<Node>(std::weak_ptr<Node>(), StonePos::Empty(), col, !board.ExpectingHalfMove());
 }
+
 std::shared_ptr<Node> Tree::Select() {
     std::shared_ptr<Node> current = root;
     while (true) {
@@ -22,4 +26,8 @@ std::shared_ptr<Node> Tree::Select() {
         }
         current = max;
     }
+}
+std::vector<std::shared_ptr<Node>> Tree::Expand(const std::shared_ptr<Node> &node) {
+    auto b = node->GetResultingBoard(rootBoard);
+    return node->Expand(b);
 }
