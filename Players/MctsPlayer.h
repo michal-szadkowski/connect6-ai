@@ -9,19 +9,16 @@
 class MctsPlayer : public Player {
 private:
     std::unique_ptr<Tree> tree;
-    int timeLimitInMs;
+    int expCount = 16000;
+    int simCount = 1;
 
     int allNodes = 0;
-
-    template<typename T>
-    static T SelectRandom(std::vector<T> vector);
-    static int RandomInRange(int min, int max);
-
     Color SimulateGame(const Board &board);
 public:
     MctsPlayer();
     Move GetMove(const Board &board, const Move &prevMove) override;
 
+    void PostMoveToTree(const Board &board, const Move &move);
 };
 
 

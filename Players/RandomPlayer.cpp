@@ -1,9 +1,10 @@
 #include <random>
 #include "RandomPlayer.h"
+#include "../Random.h"
 
 Move RandomPlayer::GetMove(const Board &board, const Move &prevMove) {
     auto pos1 = GetRandomPos(board, StonePos::Empty());
-    if (board.ExpectingHalfMove() == 0)
+    if (!board.ExpectingFullMove())
         return {pos1, StonePos::Empty(), this->GetColor()};
     else {
         auto pos2 = GetRandomPos(board, pos1);
@@ -14,16 +15,8 @@ Move RandomPlayer::GetMove(const Board &board, const Move &prevMove) {
 StonePos RandomPlayer::GetRandomPos(const Board &board, StonePos prev) {
     char x, y;
     do {
-        x = static_cast<char>(RandomCoord());
-        y = static_cast<char>(RandomCoord());
+        x = static_cast<char>(Random::RandomInRange(0, BOARD_SIZE));
+        y = static_cast<char>(Random::RandomInRange(0, BOARD_SIZE));
     } while (!board.IsEmpty({x, y}) || prev == StonePos(x, y));
     return {x, y};
 }
-
-int RandomPlayer::RandomCoord() {
-    static std::random_device randomDevice;
-    static std::mt19937 mt(randomDevice());
-    static std::uniform_int_distribution<int> d(0, BOARD_SIZE - 1);
-    return d(mt);
-}
-

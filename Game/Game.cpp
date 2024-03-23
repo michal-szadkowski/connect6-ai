@@ -13,38 +13,26 @@ Game::Game(Player &black, Player &white, const Board &board) : Game(black, white
 }
 
 
-bool Game::MakeMove(const Move &move) {
+void Game::MakeMove(const Move &move) {
     if (!IsLegal(move))
         throw std::invalid_argument("move");
-    board.Set(move.GetFirst(), move.GetColor());
-    if (move.GetSecond() != StonePos::Empty())
-        board.Set(move.GetSecond(), move.GetColor());
-    return true;
+    auto r = board.PutStone(move.GetFirst(), move.GetColor());
+    if (move.GetSecond() != StonePos::Empty() && r == Color::None)
+        board.PutStone(move.GetSecond(), move.GetColor());
 }
-
-
-Color Game::CheckForEndAfter(Move move) {
-    Color col = board.CheckWinAfter(move.GetFirst(), move.GetColor());
-    if (col == Color::None && move.GetSecond() != StonePos::Empty())
-        col = board.CheckWinAfter(move.GetSecond(), move.GetColor());
-    return col;
-}
-
 
 Color Game::Play() {
-    if (result != Color::None) throw std::exception();
+    if (board.GetResult() != Color::None) throw std::logic_error("can't start game with result");
     Move move = Move(StonePos::Empty(), StonePos::Empty(), Color::None);
-    while (result == Color::None) {
+    while (board.GetResult() == Color::None) {
         Player &p = board.GetTurn() == Color::Black ? black : white;
         move = MakePlayerTurn(p, move);
     }
-    return result;
+    return board.GetResult();
 }
 Move Game::MakePlayerTurn(Player &player, const Move &prevMove) {
     auto move = player.GetMove(board, prevMove);
     MakeMove(move);
-    result = CheckForEndAfter(move);
-//    PrintBoard();
     return move;
 }
 
@@ -54,7 +42,7 @@ bool Game::IsLegal(const Move &move) {
     if (!board.IsEmpty(move.GetFirst()))
         return false;
     if (move.IsHalf()) {
-        if ((board.ExpectingHalfMove() != 0))
+        if (board.ExpectingFullMove())
             return false;
     } else if (!board.IsEmpty(move.GetSecond()))
         return false;

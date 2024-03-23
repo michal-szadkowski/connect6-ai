@@ -26,4 +26,6 @@ add_executable(connect6_ai main.cpp
         Mcts/Tree.cpp
         Players/MctsPlayer.cpp
         Players/MctsPlayer.h
+        Random.cpp
+        Random.h
 )

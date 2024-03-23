@@ -9,8 +9,9 @@
 
 class Node : public std::enable_shared_from_this<Node> {
 private:
-    std::weak_ptr<Node> parent;
     std::vector<std::shared_ptr<Node>> children;
+    std::weak_ptr<Node> parent;
+
     bool expanded = false;
 
     StonePos pos;
@@ -25,14 +26,14 @@ public:
     Color GetColor() const { return color; }
 
     double GetValue() const;
-    double GetVisitCount() const { return visitCount; }
-
+    double GetWinRate() const;
+    
     bool IsExpanded() const { return expanded; }
 
-    std::vector<std::shared_ptr<Node>> Expand(Board currentBoard);
-    std::vector<std::shared_ptr<Node>> GetChildren() const { return children; }
+    std::vector<std::shared_ptr<Node>> Expand(const Board &currentBoard);
+    const std::vector<std::shared_ptr<Node>> &GetChildren() const { return children; }
     int Propagate(Color result);
-    Board GetResultingBoard(Board rootBoard) const;
+    Board GetResultingBoard(const Board &rootBoard) const;
 
 
 };

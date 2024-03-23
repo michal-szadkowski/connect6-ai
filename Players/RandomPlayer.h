@@ -6,7 +6,6 @@
 
 class RandomPlayer : public Player {
 private:
-    static int RandomCoord();
     static StonePos GetRandomPos(const Board &board, StonePos prev);
 public:
     Move GetMove(const Board &board, const Move &prevMove) override;

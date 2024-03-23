@@ -14,25 +14,29 @@ private:
     std::bitset<BOARD_SIZE * BOARD_SIZE> black;
     std::bitset<BOARD_SIZE * BOARD_SIZE> white;
     int stonesPlaced = 0;
+
     Color turn = Color::Black;
+    Color result = Color::None;
 
     static int xy2n(const StonePos &pos);
     template<int dx, int dy>
     int ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, const StonePos &pos) const;
+    bool CheckForConnectedAt(const StonePos &pos, Color color) const;
+    Color CheckWinAfter(const StonePos &pos, Color color) const;
+
     void ChangeTurn();
+    void Set(const StonePos &pos, Color color);
 public:
     std::vector<StonePos> GetAllEmpty() const;
     bool IsEmpty(const StonePos &pos) const;
     bool Get(const StonePos &pos, Color color) const;
-    void Set(const StonePos &pos, Color color);
+    Color PutStone(const StonePos &pos, Color stoneColor);
 
     Color GetTurn() const;
-
-    bool CheckForConnectedAt(const StonePos &pos, Color color) const;
-    Color CheckWinAfter(const StonePos &pos, Color color);
+    Color GetResult() const;
 
     int StonesPlacedCount() const;
-    bool ExpectingHalfMove() const;
+    bool ExpectingFullMove() const;
 };
 
 
