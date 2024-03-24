@@ -30,6 +30,7 @@ Color Game::Play() {
     }
     return board.GetResult();
 }
+
 Move Game::MakePlayerTurn(Player &player, const Move &prevMove) {
     auto move = player.GetMove(board, prevMove);
     MakeMove(move);
@@ -41,23 +42,10 @@ bool Game::IsLegal(const Move &move) {
     if (move.GetFirst() == move.GetSecond()) return false;
     if (!board.IsEmpty(move.GetFirst()))
         return false;
-    if (move.IsHalf()) {
-        if (board.ExpectingFullMove())
-            return false;
-    } else if (!board.IsEmpty(move.GetSecond()))
+    if (!board.ExpectingFullMove() && !move.IsHalf()) {
+        return false;
+    }
+    if (!move.IsHalf() && !board.IsEmpty(move.GetSecond()))
         return false;
     return true;
-}
-
-void Game::PrintBoard() {
-    for (char i = 0; i < BOARD_SIZE; ++i) {
-        for (char j = 0; j < BOARD_SIZE; ++j) {
-            bool w = board.Get({i, j}, Color::White);
-            bool b = board.Get({i, j}, Color::Black);
-            char s = w ? 'X' : b ? 'O' : '.';
-            std::cout << s;
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
 }

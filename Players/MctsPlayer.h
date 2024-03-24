@@ -5,20 +5,21 @@
 #include <memory>
 #include "Player.h"
 #include "../Mcts/Tree.h"
+#include "../Interface/Logger.h"
 
 class MctsPlayer : public Player {
 private:
     std::unique_ptr<Tree> tree;
-    int expCount = 16000;
-    int simCount = 1;
+    int expCount = 250000;
+    int simCount = 5;
 
-    int allNodes = 0;
     Color SimulateGame(const Board &board);
+    void PostMoveToTree(const Move &move);
+    void RunTreeAlgorithm();
+    Logger &logger;
 public:
-    MctsPlayer();
+    MctsPlayer(Logger &logger);
     Move GetMove(const Board &board, const Move &prevMove) override;
-
-    void PostMoveToTree(const Board &board, const Move &move);
 };
 
 

@@ -28,4 +28,7 @@ add_executable(connect6_ai main.cpp
         Players/MctsPlayer.h
         Random.cpp
         Random.h
+        Interface/Logger.h
+        Interface/ConsoleLogger.cpp
+        Interface/ConsoleLogger.h
 )

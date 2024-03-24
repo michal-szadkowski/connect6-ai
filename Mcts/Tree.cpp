@@ -29,18 +29,18 @@ void Tree::PushMoveToTree(const StonePos &pos, const Color &col) {
     rootBoard.PutStone(pos, col);
 }
 
-std::shared_ptr<Node> Tree::Select() {
+std::shared_ptr<Node> Tree::SelectLeaf() const {
     std::shared_ptr<Node> current = root;
     while (true) {
-        auto children = current->GetChildren();
-        std::shuffle(children.begin(), children.end(), Random::getGen());
+        if (!current->IsExplored()) return current;
+        auto children = current->GetChildren();;
         if (children.empty()) return current;
-        auto unexplored = FindUnexplored(children);
-        if (!unexplored.empty()) return current;
         std::shared_ptr<Node> max;
+        double maxVal = -100;
         for (const auto &n: children) {
-            if (max == nullptr || n->GetValue() > max->GetValue()) {
+            if (max == nullptr || n->GetValue() > maxVal) {
                 max = n;
+                maxVal = n->GetValue();
             }
         }
         current = max;
@@ -49,23 +49,24 @@ std::shared_ptr<Node> Tree::Select() {
 
 std::vector<std::shared_ptr<Node>> Tree::FindUnexplored(const std::vector<std::shared_ptr<Node>> &all) {
     std::vector<std::shared_ptr<Node>> result;
+    result.reserve(all.size());
     for (const auto &item: all) {
-        if (item->GetValue() == std::numeric_limits<double>::infinity())
+        if (!item->IsExplored())
             result.push_back(item);
     }
     return result;
 }
 
-std::shared_ptr<Node> Tree::Expand(const std::shared_ptr<Node> &node) {
+std::shared_ptr<Node> Tree::ExpandAndGetForSimulation(const std::shared_ptr<Node> &node) {
     auto b = node->GetResultingBoard(rootBoard);
     auto children = node->Expand(b);
     if (children.empty())
         return node;
-    auto unexplored = FindUnexplored(children);
-    if (unexplored.empty())
-        return Random::SelectRandomElement(children);
-    else
+    if (!node->IsExplored()) {
+        auto unexplored = FindUnexplored(children);
         return Random::SelectRandomElement(unexplored);
+    } else
+        return Random::SelectRandomElement(children);
 }
 
 std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Tree::GetBestSequence() {
@@ -73,10 +74,10 @@ std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Tree::GetBestSequence() 
     auto ch1 = root->GetChildren();
     first = ch1.front();
     for (const auto &item: ch1) {
-        if (item->GetWinRate() > first->GetWinRate() && !item->GetChildren().empty())
+        if ((item->GetWinRate() > first->GetWinRate() && item->IsExplored()) || !first->IsExplored())
             first = item;
     }
-    if (first->GetColor() == first->GetChildren().front()->GetColor())
+    if (!first->GetChildren().empty() && first->GetColor() == first->GetChildren().front()->GetColor())
         second = GetBestFrom(first->GetChildren());
     return {first, second};
 }

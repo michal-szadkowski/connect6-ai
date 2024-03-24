@@ -27,15 +27,13 @@ public:
 
     double GetValue() const;
     double GetWinRate() const;
-    
-    bool IsExpanded() const { return expanded; }
+
+    bool IsExplored() const { return visitCount > 0 && children.size() <= visitCount; }
 
     std::vector<std::shared_ptr<Node>> Expand(const Board &currentBoard);
     const std::vector<std::shared_ptr<Node>> &GetChildren() const { return children; }
-    int Propagate(Color result);
+    int PropagateResult(Color result);
     Board GetResultingBoard(const Board &rootBoard) const;
-
-
 };
 
 

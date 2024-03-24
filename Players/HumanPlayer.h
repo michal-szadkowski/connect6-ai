@@ -3,9 +3,12 @@
 
 
 #include "Player.h"
+#include "../Interface/Logger.h"
 
 class HumanPlayer : public Player {
+    Logger &logger;
 public:
+    HumanPlayer(Logger &logger);
     Move GetMove(const Board &board, const Move &prevMove) override;
 };
 

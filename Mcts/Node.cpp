@@ -40,23 +40,22 @@ double Node::GetValue() const {
         return std::numeric_limits<double>::infinity();
     double result = score * 1.0 / visitCount;
     if (auto p = parent.lock()) {
-        result += 0.20 * std::sqrt(std::log(p->visitCount) / visitCount);
+        result += 0.4 * std::sqrt(std::log(p->visitCount) / visitCount);
     }
     return result;
 }
 double Node::GetWinRate() const {
     return visitCount;
-    return score * 1.0 / visitCount;
 }
 
 
-int Node::Propagate(Color result) {
+int Node::PropagateResult(Color result) {
     ++visitCount;
     if (color == result) ++score;
     else if (color == Reverse(result)) --score;
     int depth = 0;
     if (auto p = parent.lock()) {
-        depth = p->Propagate(result);
+        depth = p->PropagateResult(result);
     }
     return depth + 1;
 }

@@ -1,0 +1,175 @@
+@startuml
+
+enum Con6.Color {
+None
+Black
+White
+Draw
+}
+
+
+class Con6.StonePos {
+    - x : char
+    - y : char
+    + {static} Empty() : StonePos
+    + StonePos(x, y)
+    + GetX() : char
+    + GetY() : char
+}
+
+class Con6.Move {
+    - first : StonePos
+    - second : StonePos
+    - color : Color
+    + Move(first, color)
+    + Move(first, second, color)
+    + GetFirst() : StonePos
+    + GetSecond() : StonePos
+    + GetColor() : Color
+    + IsHalf() : bool
+}
+Con6.StonePos "2" *- Con6.Move
+Con6.Move ->Con6.Color
+
+class Con6.Board {
+    - black : bitset
+    - white : bitset
+    - stonesPlaced : int
+    - turn : Color
+    - result: Color
+    
+    - CheckWinAfter(StonePos, Color) : Color
+    - ChangeTurn()
+    - Set(StonePos, Color)
+   
+    + GetAllEmpty() : StonePos[]
+    + IsEmpty(StonePos): bool
+    + Get(StonePos, Color) : bool
+    + PutStone(StonePos, Color) : Color
+    
+    + GetTurn() : Color
+    + GetResult() : Color
+}
+Con6.Move <-- Con6.Board
+
+
+class Game{
+    - black : Player
+    - white : Player
+    - board : Board
+    - MakePlayerTurn(Player, Move)
+    - MakeMove(Move)
+    - IsLegal(Move)
+    + Game(Player, Player)
+    + Game(Player, Player, Board)
+    
+    + Play() : Color
+}
+Con6.Board <-left- Game
+Players.Player "2" *-up- Game
+
+
+abstract class Players.Player {
+    - color : Color
+    + SetColor(Color)
+    + GetColor() : Color
+    + {abstract} GetMove(Board, Move) : Move
+}
+Interface.Logger <-- Players.Player
+Con6.Board <-- Players.Player
+
+
+class Players.MctsPlayer extends Players.Player{
+    - tree : Tree
+    
+    - SimulateGame(Board) : Color
+    - PostMoveToTree(Move)
+    - RunTreeAlgorithm()
+    + GetMove(Board, Move) : Move
+}
+Players.MctsPlayer -> Players.RandomPlayer  : SimulateGame 
+Players.MctsPlayer --> Players.MCTS.Tree 
+Game <-- Players.MctsPlayer : SimulateGame
+
+class Players.MCTS.Node{
+    - children : Node[]
+    - parent : Node
+    
+    - position : StonePos 
+    - color : Color
+    - isFirstOfMove : bool
+    - visitCount : int
+    - score : int
+    
+    + GetValue() : double
+    + GetWinRate() : double
+    
+    + IsExplored() : bool
+    + Expand(Board) : Node[]
+    
+}
+
+class Players.MCTS.Tree{
+    - root : Node
+    - rootBoard : Board
+    
+    - GetNodeCorrespondingToPosition(StonePos, Color) : Node
+    - GetBestFrom(Node[]) : Node
+    + PushPosToTree(StonePos, Color)
+    + GetBestPair() : pair<Node, Node>
+    + SelectLeaf() : Node
+    + FindUnexplored(Node[]) : Node[]
+    + Expand(Node) : Node
+    + GetBoardForNode(Node) : Board
+}
+Players.MCTS.Tree -* Players.MCTS.Node
+
+
+
+class Players.DQNPlayer extends Players.Player{
+    + GetMove(Board, Move) : Move
+}
+Players.DQNPlayer --> Players.DQN.Agent
+class Players.DQN.Agent{
+    - replayMemory : (Board, StonePos, double, Board)[]
+    - StoreExperience(Board, StonePos, double, Board)
+    + GetBestPos(Board, StonePos[]) : StonePos
+    + LearnFromMemory(int iters)
+}
+Players.DQN.Agent --> Players.DQN.Network
+class Players.DQN.Network{
+    + Evaluate(Board, StonePos) : double
+    + BackPropagate(Board, StonePos, double)
+}
+class Players.RandomPlayer extends Players.Player{
+    - GetRandomPos() : StonePos
+    + GetMove(Board, Move) : Move
+}
+
+class Players.HumanPlayer extends Players.Player{
+    - GetInputFromUser() : StonePos
+    + GetMove() : Move
+}
+
+
+
+abstract class Interface.Logger{
+    + WriteBoard(Board, Move)
+    + WriteMove(Move)
+    + WriteInfo(string)
+}
+
+class Interface.ConsoleLogger {
+
+}
+Interface.ConsoleLogger -|> Interface.Logger
+class Interface.FileLogger {
+    - CreateFile(string)
+    - WriteToFile(string)
+}
+Interface.Logger <|- Interface.FileLogger
+
+
+
+
+@enduml
