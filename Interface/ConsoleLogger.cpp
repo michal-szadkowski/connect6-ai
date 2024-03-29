@@ -24,9 +24,9 @@ void ConsoleLogger::WriteBoard(const Board &board, const Move &prevMove) {
         std::cout << std::format("{:2d}", i % 10);
     }
     std::cout << std::endl;
-    for (char i = 0; i < BOARD_SIZE; ++i) {
+    for (pos_t i = 0; i < BOARD_SIZE; ++i) {
         std::cout << std::format("{:<3d}", i);
-        for (char j = 0; j < BOARD_SIZE; ++j) {
+        for (pos_t j = 0; j < BOARD_SIZE; ++j) {
             bool w = board.Get({i, j}, Color::White);
             bool b = board.Get({i, j}, Color::Black);
             std::string s = w ? "X" : b ? "O" : WHITE ".";

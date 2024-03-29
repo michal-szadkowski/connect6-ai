@@ -2,20 +2,23 @@
 #define CONNECT6_AI_STONEPOS_H
 
 #include <compare>
+#include <cstdint>
+
+#define pos_t int8_t
 
 class StonePos {
-    char x;
-    char y;
+    pos_t x;
+    pos_t y;
 public:
     static StonePos Empty() { return {}; }
 
     StonePos() : x(-1), y(-1) {}
 
-    StonePos(char x, char y) : x(x), y(y) {}
+    StonePos(pos_t x, pos_t y) : x(x), y(y) {}
 
-    char GetX() const { return x; }
+    pos_t GetX() const { return x; }
 
-    char GetY() const { return y; }
+    pos_t GetY() const { return y; }
 
     StonePos operator+(const StonePos &pos) const;
     StonePos &operator+=(const StonePos &pos);

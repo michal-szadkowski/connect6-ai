@@ -17,14 +17,14 @@ Move HumanPlayer::GetMove(const Board &board, const Move &prevMove) {
     if (board.ExpectingFullMove()) {
         std::cout << "second: \n";
         std::cin >> x2 >> y2;
-        return {{static_cast<char>(x1),
-                 static_cast<char>(y1)},
-                {static_cast<char>(x2),
-                 static_cast<char>(y2)},
+        return {{static_cast<pos_t>(x1),
+                 static_cast<pos_t>(y1)},
+                {static_cast<pos_t>(x2),
+                 static_cast<pos_t>(y2)},
                 this->GetColor()};
     }
-    return {{static_cast<char>(x1),
-             static_cast<char>(y1)},
+    return {{static_cast<pos_t>(x1),
+             static_cast<pos_t>(y1)},
             this->GetColor()};
 
 }

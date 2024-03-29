@@ -1,7 +1,9 @@
 #ifndef CONNECT6_AI_COLOR_H
 #define CONNECT6_AI_COLOR_H
 
-enum class Color : char {
+#include <cstdint>
+
+enum class Color : int8_t {
     None = 0,
     Black = 1,
     White = -1,

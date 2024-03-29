@@ -57,8 +57,8 @@ void Board::ChangeTurn() {
 std::vector<StonePos> Board::GetAllEmpty() const {
     auto b = black | white;
     std::vector<StonePos> empty;
-    for (char i = 0; i < BOARD_SIZE; ++i) {
-        for (char j = 0; j < BOARD_SIZE; ++j) {
+    for (pos_t i = 0; i < BOARD_SIZE; ++i) {
+        for (pos_t j = 0; j < BOARD_SIZE; ++j) {
             if (!b[xy2n({i, j})])
                 empty.emplace_back(i, j);
         }

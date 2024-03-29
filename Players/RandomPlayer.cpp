@@ -13,10 +13,10 @@ Move RandomPlayer::GetMove(const Board &board, const Move &prevMove) {
 }
 
 StonePos RandomPlayer::GetRandomPos(const Board &board, StonePos prev) {
-    char x, y;
+    pos_t x, y;
     do {
-        x = static_cast<char>(Random::RandomInRange(0, BOARD_SIZE));
-        y = static_cast<char>(Random::RandomInRange(0, BOARD_SIZE));
+        x = static_cast<pos_t>(Random::RandomInRange(0, BOARD_SIZE));
+        y = static_cast<pos_t>(Random::RandomInRange(0, BOARD_SIZE));
     } while (!board.IsEmpty({x, y}) || prev == StonePos(x, y));
     return {x, y};
 }
