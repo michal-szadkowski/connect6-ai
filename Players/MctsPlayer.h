@@ -14,11 +14,11 @@ private:
     int simCount = 5;
     double expRate = 0.4;
 
-    Color SimulateGame(const Board &board);
+    static Color SimulateGame(const Board &board);
     void PostMoveToTree(const Move &move);
     void RunTreeAlgorithm();
 public:
-    MctsPlayer(std::shared_ptr<InfoLogger> logger, int explorations = 250000, int simulations = 5,
+    MctsPlayer(std::string name, std::shared_ptr<InfoLogger> logger, int explorations = 250000, int simulations = 5,
                double expRate = 0.4);
 
     Move GetMove(const Board &board, const Move &prevMove) override;

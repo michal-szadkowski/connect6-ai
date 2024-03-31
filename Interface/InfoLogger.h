@@ -6,7 +6,7 @@
 
 class InfoLogger {
 public:
-    virtual void WriteInfo(__attribute__((unused)) const std::string &info) {};
+    virtual void WriteInfo(const std::string &name, __attribute__((unused)) const std::string &info) {};
     virtual ~InfoLogger() = default;
 };
 

@@ -6,10 +6,14 @@
 
 
 class GameLogger {
+protected:
+    int verbosity;
 public:
+    GameLogger(int verbosity = 0) : verbosity(verbosity) {};
     virtual void
     WriteBoard(__attribute__((unused)) const Board &board, __attribute__((unused)) const Move &prevMove) {};
     virtual void WriteMove(__attribute__((unused)) const Move &move) {};
+
     static std::string WriteColor(const Color &color) {
         if (color == Color::Black) return "black";
         else if (color == Color::White) return "white";

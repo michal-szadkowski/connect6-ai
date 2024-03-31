@@ -9,11 +9,13 @@
 
 class Player {
 private:
+    std::string name;
     Color color = Color::None;
 protected:
     std::shared_ptr<InfoLogger> logger;
 public:
-    Player(std::shared_ptr<InfoLogger> logger);
+    Player(std::string name, std::shared_ptr<InfoLogger> logger);
+    std::string Name() { return name; }
     void SetColor(Color newColor);
     Color GetColor();
     virtual Move GetMove(const Board &board, const Move &prevMove) = 0;

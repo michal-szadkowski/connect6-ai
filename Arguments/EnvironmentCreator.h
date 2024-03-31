@@ -15,12 +15,17 @@ class EnvironmentCreator {
     std::shared_ptr<InfoLogger> infoLogger;
     std::shared_ptr<GameLogger> gameLogger;
 public:
-    EnvironmentCreator(ArgumentParser args) : args(std::move(args)) {}
+    EnvironmentCreator(ArgumentParser &args) : args(std::move(args)) {}
 
     void SetLogger();
     std::unique_ptr<Player> GetPlayer(const std::string &name);
+    std::shared_ptr<GameLogger> GetGameLogger() { return gameLogger; }
+    std::shared_ptr<InfoLogger> GetInfoLogger() { return infoLogger; }
 
     std::unique_ptr<MctsPlayer> GetMctsPlayer(const std::string &name);
+
+    int GetGameCount();
+
     void PrintUsage();
 };
 

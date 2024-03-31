@@ -10,4 +10,5 @@ Color Player::GetColor() {
     return this->color;
 }
 
-Player::Player(std::shared_ptr<InfoLogger> logger) : logger(std::move(logger)) {}
+Player::Player(std::string name, std::shared_ptr<InfoLogger> logger) : name(std::move(name)),
+                                                                       logger(std::move(logger)) {}
