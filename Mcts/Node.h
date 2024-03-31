@@ -25,8 +25,8 @@ public:
     StonePos GetPosition() const { return pos; }
     Color GetColor() const { return color; }
 
-    double GetValue() const;
-    double GetWinRate() const;
+    double GetValue(double expRate) const;
+    unsigned int GetVisitCount() const;
 
     bool IsExplored() const { return visitCount > 0 && children.size() <= visitCount; }
 
@@ -34,6 +34,7 @@ public:
     const std::vector<std::shared_ptr<Node>> &GetChildren() const { return children; }
     int PropagateResult(Color result);
     Board GetResultingBoard(const Board &rootBoard) const;
+    double GetScore() const;
 };
 
 

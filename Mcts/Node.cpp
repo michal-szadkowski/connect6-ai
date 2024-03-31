@@ -35,17 +35,20 @@ Board Node::GetResultingBoard(const Board &rootBoard) const {
     return b;
 }
 
-double Node::GetValue() const {
+double Node::GetValue(double expRate) const {
     if (visitCount == 0)
         return std::numeric_limits<double>::infinity();
     double result = score * 1.0 / visitCount;
     if (auto p = parent.lock()) {
-        result += 0.4 * std::sqrt(std::log(p->visitCount) / visitCount);
+        result += expRate * std::sqrt(std::log(p->visitCount) / visitCount);
     }
     return result;
 }
-double Node::GetWinRate() const {
+unsigned int Node::GetVisitCount() const {
     return visitCount;
+}
+double Node::GetScore() const {
+    return score * 1.0 / visitCount;
 }
 
 

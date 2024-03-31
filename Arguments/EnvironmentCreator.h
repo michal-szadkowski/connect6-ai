@@ -3,6 +3,7 @@
 
 
 #include <memory>
+#include <utility>
 #include "../Players/Player.h"
 #include "ArgumentParser.h"
 #include "../Players/HumanPlayer.h"
@@ -14,13 +15,12 @@ class EnvironmentCreator {
     std::shared_ptr<InfoLogger> infoLogger;
     std::shared_ptr<GameLogger> gameLogger;
 public:
+    EnvironmentCreator(ArgumentParser args) : args(std::move(args)) {}
+
     void SetLogger();
     std::unique_ptr<Player> GetPlayer(const std::string &name);
 
-    MctsPlayer GetMctsPlayer(std::string name);
-    RandomPlayer GetRandomPlayer(std::string name);
-
-
+    std::unique_ptr<MctsPlayer> GetMctsPlayer(const std::string &name);
     void PrintUsage();
 };
 

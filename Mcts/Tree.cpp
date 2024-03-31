@@ -29,7 +29,7 @@ void Tree::PushMoveToTree(const StonePos &pos, const Color &col) {
     rootBoard.PutStone(pos, col);
 }
 
-std::shared_ptr<Node> Tree::SelectLeaf() const {
+std::shared_ptr<Node> Tree::SelectLeaf(double expRate) const {
     std::shared_ptr<Node> current = root;
     while (true) {
         if (!current->IsExplored()) return current;
@@ -38,9 +38,9 @@ std::shared_ptr<Node> Tree::SelectLeaf() const {
         std::shared_ptr<Node> max;
         double maxVal = -100;
         for (const auto &n: children) {
-            if (max == nullptr || n->GetValue() > maxVal) {
+            if (max == nullptr || n->GetValue(expRate) > maxVal) {
                 max = n;
-                maxVal = n->GetValue();
+                maxVal = n->GetValue(expRate);
             }
         }
         current = max;
@@ -74,7 +74,7 @@ std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Tree::GetBestSequence() 
     auto ch1 = root->GetChildren();
     first = ch1.front();
     for (const auto &item: ch1) {
-        if ((item->GetWinRate() > first->GetWinRate() && item->IsExplored()) || !first->IsExplored())
+        if ((item->GetVisitCount() > first->GetVisitCount() && item->IsExplored()) || !first->IsExplored())
             first = item;
     }
     if (!first->GetChildren().empty() && first->GetColor() == first->GetChildren().front()->GetColor())
@@ -85,7 +85,7 @@ std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Tree::GetBestSequence() 
 std::shared_ptr<Node> Tree::GetBestFrom(std::vector<std::shared_ptr<Node>> vector) {
     std::shared_ptr<Node> result = vector.front();
     for (const auto &item: vector) {
-        if (item->GetWinRate() > result->GetWinRate())
+        if (item->GetVisitCount() > result->GetVisitCount())
             result = item;
     }
     return result;

@@ -17,13 +17,13 @@ public:
     explicit Tree(const Board &board);
 
     void PushMoveToTree(const StonePos &pos, const Color &col);
+    std::shared_ptr<Node> GetRoot() { return root; }
 
     std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> GetBestSequence();
 
-    std::shared_ptr<Node> SelectLeaf() const;
+    std::shared_ptr<Node> SelectLeaf(double expRate) const;
     static std::vector<std::shared_ptr<Node>> FindUnexplored(const std::vector<std::shared_ptr<Node>> &all);
     std::shared_ptr<Node> ExpandAndGetForSimulation(const std::shared_ptr<Node> &node);
-
 
     Board GetBoardForNode(const std::shared_ptr<Node> &node) const { return node->GetResultingBoard(rootBoard); }
 };
