@@ -37,6 +37,9 @@ void ConsoleLogger::WriteBoard(const Board &board, const Move &prevMove) {
         std::cout << std::endl;
     }
     WriteMove(prevMove);
+    if (board.GetResult() != Color::None) {
+        std::cout << WriteColor(board.GetResult()) << " wins";
+    }
     std::cout << std::endl;
 }
 void ConsoleLogger::WriteInfo(const std::string &info) {

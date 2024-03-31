@@ -4,6 +4,7 @@
 
 #include "Board.h"
 #include "../Players/Player.h"
+#include "../Interface/GameLogger.h"
 
 class Game {
 private:
@@ -11,14 +12,15 @@ private:
     Player &white;
     Board board;
 
+    GameLogger &logger;
 
     Move MakePlayerTurn(Player &player, const Move &prevMove);
     bool IsLegal(const Move &move);
     void MakeMove(const Move &move);
 
 public:
-    Game(Player &black, Player &white);
-    Game(Player &black, Player &white, const Board &board);
+    Game(Player &black, Player &white, GameLogger &logger);
+    Game(Player &black, Player &white, const Board &board, GameLogger &logger);
 
 
     Color Play();

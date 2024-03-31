@@ -7,3 +7,5 @@ void Player::SetColor(Color newColor) {
 Color Player::GetColor() {
     return this->color;
 }
+
+Player::Player(InfoLogger &logger) : logger(logger) {}

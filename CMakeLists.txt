@@ -30,9 +30,14 @@ add_executable(connect6_ai main.cpp
         Players/MctsPlayer.h
         Random.cpp
         Random.h
-        Interface/Logger.h
+        Interface/GameLogger.h
         Interface/ConsoleLogger.cpp
         Interface/ConsoleLogger.h
+        Arguments/ArgumentParser.cpp
+        Arguments/ArgumentParser.h
+        Arguments/EnvironmentCreator.cpp
+        Arguments/EnvironmentCreator.h
+        Interface/InfoLogger.h
 )
 #target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
 #target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})

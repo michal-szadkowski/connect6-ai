@@ -3,13 +3,13 @@
 
 
 #include "Player.h"
-#include "../Interface/Logger.h"
+#include "../Interface/GameLogger.h"
+#include "../Interface/InfoLogger.h"
 
 class HumanPlayer : public Player {
-    Logger &logger;
 public:
-    HumanPlayer(Logger &logger);
-    Move GetMove(const Board &board, const Move &prevMove) override;
+    HumanPlayer(InfoLogger &logger);
+    Move GetMove(const Board &board, const Move &prevMove) final;
 };
 
 

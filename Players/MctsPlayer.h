@@ -5,7 +5,7 @@
 #include <memory>
 #include "Player.h"
 #include "../Mcts/Tree.h"
-#include "../Interface/Logger.h"
+#include "../Interface/GameLogger.h"
 
 class MctsPlayer : public Player {
 private:
@@ -16,9 +16,9 @@ private:
     Color SimulateGame(const Board &board);
     void PostMoveToTree(const Move &move);
     void RunTreeAlgorithm();
-    Logger &logger;
 public:
-    MctsPlayer(Logger &logger);
+    MctsPlayer(InfoLogger &logger, int explorations = 250000, int simulations = 5);
+
     Move GetMove(const Board &board, const Move &prevMove) override;
 };
 

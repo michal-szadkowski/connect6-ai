@@ -18,7 +18,7 @@ private:
     Color color;
     bool isFirstOfMove;
 
-    int visitCount = 0;
+    unsigned int visitCount = 0;
     int score = 0;
 public:
     Node(std::weak_ptr<Node> parent, StonePos pos, Color color, bool isFirst);

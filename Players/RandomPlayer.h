@@ -8,6 +8,7 @@ class RandomPlayer : public Player {
 private:
     static StonePos GetRandomPos(const Board &board, StonePos prev);
 public:
+    RandomPlayer(InfoLogger &logger) : Player(logger) {}
     Move GetMove(const Board &board, const Move &prevMove) override;
 };
 

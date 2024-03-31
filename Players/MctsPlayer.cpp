@@ -4,37 +4,41 @@
 #include <chrono>
 #include <iostream>
 
-MctsPlayer::MctsPlayer(Logger &logger) : logger(logger) {
+MctsPlayer::MctsPlayer(InfoLogger &logger, int explorations, int simulations)
+        : Player(logger), expCount(explorations), simCount(simulations) {
     tree = std::make_unique<Tree>();
 }
 
+
 Move MctsPlayer::GetMove(const Board &board, const Move &prevMove) {
     PostMoveToTree(prevMove);
-    logger.WriteBoard(board, prevMove);
+
     auto start = std::chrono::high_resolution_clock::now();
     RunTreeAlgorithm();
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::milliseconds>(end - start);
+    logger.WriteInfo(std::format("Time taken by function: {} milliseconds", duration.count()));
 
     auto s = tree->GetBestSequence();
-
-    logger.WriteInfo(std::format("Time taken by function: {} milliseconds\n", duration.count()));
-
-    Move move{s.first->GetPosition(), StonePos::Empty(), this->GetColor()};
-    if (s.second.get()) {
-        logger.WriteInfo(std::format("{} {}\n", s.first->GetWinRate(), s.second->GetWinRate()));
+    Move move{StonePos::Empty(), StonePos::Empty(), this->GetColor()};
+    if (!s.second.get()) {
+        move = {s.first->GetPosition(), StonePos::Empty(), this->GetColor()};
+        logger.WriteInfo(std::format("{}", s.first->GetWinRate()));
+    } else {
         move = {s.first->GetPosition(), s.second->GetPosition(), this->GetColor()};
+        logger.WriteInfo(std::format("{} {}", s.first->GetWinRate(), s.second->GetWinRate()));
     }
-    logger.WriteInfo(std::format("{}\n", s.first->GetWinRate()));
     PostMoveToTree(move);
     return move;
 }
 
 Color MctsPlayer::SimulateGame(const Board &board) {
     if (board.GetResult() != Color::None) return board.GetResult();
-    RandomPlayer p1;
-    RandomPlayer p2;
-    return Game(p1, p2, board).Play();
+    InfoLogger infoLogger;
+    RandomPlayer p1(infoLogger);
+    RandomPlayer p2(infoLogger);
+    GameLogger logger1;
+    return Game(p1, p2, board, logger1).Play();
 }
 
 void MctsPlayer::PostMoveToTree(const Move &move) {

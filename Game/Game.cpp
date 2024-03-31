@@ -2,13 +2,15 @@
 #include <iostream>
 #include "Game.h"
 
-Game::Game(Player &black, Player &white) : black(black), white(white) {
+Game::Game(Player &black, Player &white, GameLogger &logger)
+        : black(black), white(white), logger(logger) {
     board = Board();
     black.SetColor(Color::Black);
     white.SetColor(Color::White);
 }
 
-Game::Game(Player &black, Player &white, const Board &board) : Game(black, white) {
+Game::Game(Player &black, Player &white, const Board &board, GameLogger &logger)
+        : Game(black, white, logger) {
     this->board = board;
 }
 
@@ -25,9 +27,11 @@ Color Game::Play() {
     if (board.GetResult() != Color::None) throw std::logic_error("can't start game with result");
     Move move = Move(StonePos::Empty(), StonePos::Empty(), Color::None);
     while (board.GetResult() == Color::None) {
+        logger.WriteBoard(board, move);
         Player &p = board.GetTurn() == Color::Black ? black : white;
         move = MakePlayerTurn(p, move);
     }
+    logger.WriteBoard(board, move);
     return board.GetResult();
 }
 
