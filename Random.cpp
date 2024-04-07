@@ -10,3 +10,7 @@ int Random::RandomInRange(int min, int max) {
     return d(gen);
 
 }
+double Random::RandomDoble() {
+    std::uniform_real_distribution<double> d(0, 1);
+    return d(gen);
+}

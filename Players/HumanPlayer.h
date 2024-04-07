@@ -8,8 +8,8 @@
 
 class HumanPlayer : public Player {
 public:
-    HumanPlayer(std::string name, std::shared_ptr<InfoLogger> logger);
-    Move GetMove(const Board &board, const Move &prevMove) final;
+    HumanPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger);
+    Move GetMove(const Board &board) override;
 };
 
 

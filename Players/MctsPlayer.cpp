@@ -5,16 +5,20 @@
 #include <utility>
 #include <thread>
 
-MctsPlayer::MctsPlayer(std::string name, std::shared_ptr<InfoLogger> logger, int explorations, int simulations,
+MctsPlayer::MctsPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger, int explorations, int simulations,
                        double expRate)
-        : Player(std::move(name), std::move(logger)), expCount(explorations), simCount(simulations), expRate(expRate) {
+        : Player(name, std::move(logger)), expCount(explorations), simCount(simulations), expRate(expRate) {
     tree = std::make_unique<Tree>();
 }
 
+void MctsPlayer::UpdateOnGame(const Move &move, const Board &board) {
+    if (board.GetResult() != Color::None)
+        tree = nullptr;
+    else
+        PostMoveToTree(move);
+}
 
-Move MctsPlayer::GetMove(const Board &board, const Move &prevMove) {
-    PostMoveToTree(prevMove);
-
+Move MctsPlayer::GetMove(const Board &board) {
     auto start = std::chrono::high_resolution_clock::now();
     RunTreeAlgorithm();
     auto end = std::chrono::high_resolution_clock::now();

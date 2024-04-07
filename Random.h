@@ -10,6 +10,7 @@ public:
     static void Seed(int seed);
 
     static int RandomInRange(int min, int max);
+    static double RandomDoble();
     static std::mt19937 getGen() { return gen; }
     template<typename T>
     static T SelectRandomElement(std::vector<T> vector) { return vector.at(RandomInRange(0, vector.size())); }

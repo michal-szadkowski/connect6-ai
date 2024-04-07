@@ -5,6 +5,7 @@ StonePos StonePos::operator+(const StonePos &pos) const {
 }
 
 StonePos &StonePos::operator+=(const StonePos &pos) {
-    *this = *this + pos;
+    this->x += pos.x;
+    this->y += pos.y;
     return *this;
 }

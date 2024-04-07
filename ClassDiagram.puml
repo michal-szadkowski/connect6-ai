@@ -102,7 +102,7 @@ class Players.MCTS.Node{
     - score : int
     
     + GetValue() : double
-    + GetWinRate() : double
+    + GetVisitCount() : double
     
     + IsExplored() : bool
     + Expand(Board) : Node[]

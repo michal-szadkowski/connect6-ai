@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(connect6_ai)
 
-#find_package(Torch REQUIRED)
-
+find_package(Torch REQUIRED)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(connect6_ai main.cpp
@@ -38,6 +37,14 @@ add_executable(connect6_ai main.cpp
         Arguments/EnvironmentCreator.cpp
         Arguments/EnvironmentCreator.h
         Interface/InfoLogger.h
+        Players/DqnPlayer.cpp
+        Players/DqnPlayer.h
+        Dqn/Agent.cpp
+        Dqn/Agent.h
+        Dqn/ReplayMemory.cpp
+        Dqn/ReplayMemory.h
+        Dqn/Network.cpp
+        Dqn/Network.h
 )
-#target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
-#target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})
+target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
+target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})

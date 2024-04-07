@@ -3,7 +3,7 @@
 #include <utility>
 #include "HumanPlayer.h"
 
-Move HumanPlayer::GetMove(const Board &board, const Move &prevMove) {
+Move HumanPlayer::GetMove(const Board &board) {
     int x1 = -1, y1 = -1;
     int x2 = -1, y2 = -1;
     std::string col = this->GetColor() == Color::Black ? "black" : "white";
@@ -23,5 +23,5 @@ Move HumanPlayer::GetMove(const Board &board, const Move &prevMove) {
             this->GetColor()};
 
 }
-HumanPlayer::HumanPlayer(std::string name, std::shared_ptr<InfoLogger> logger) :
-        Player(std::move(name), std::move(logger)) {}
+HumanPlayer::HumanPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger) :
+        Player(name, std::move(logger)) {}

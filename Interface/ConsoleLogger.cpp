@@ -14,6 +14,8 @@ void ConsoleLogger::WriteMove(const Move &move) {
 }
 void ConsoleLogger::WriteBoard(const Board &board, const Move &prevMove) {
     if (verbosity > 0) {
+        std::cout << std::endl;
+
         std::cout << "  ";
         for (int i = 0; i < BOARD_SIZE; ++i) {
             if (i >= 10)
@@ -43,7 +45,6 @@ void ConsoleLogger::WriteBoard(const Board &board, const Move &prevMove) {
     if (board.GetResult() != Color::None) {
         std::cout << WriteColor(board.GetResult()) << " wins";
     }
-    std::cout << std::endl;
 }
 void ConsoleLogger::WriteInfo(const std::string &name, const std::string &info) {
 

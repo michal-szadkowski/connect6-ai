@@ -28,15 +28,18 @@ Color Game::Play() {
     Move move = Move(StonePos::Empty(), StonePos::Empty(), Color::None);
     while (board.GetResult() == Color::None) {
         logger.WriteBoard(board, move);
-        Player &p = board.GetTurn() == Color::Black ? black : white;
-        move = MakePlayerTurn(p, move);
+        Player &player = board.GetTurn() == Color::Black ? black : white;
+        Player &opponent = board.GetTurn() == Color::White ? black : white;
+        move = MakePlayerTurn(player, move);
+        opponent.UpdateOnGame(move, board);
     }
     logger.WriteBoard(board, move);
     return board.GetResult();
 }
 
 Move Game::MakePlayerTurn(Player &player, const Move &prevMove) {
-    auto move = player.GetMove(board, prevMove);
+    auto move = player.GetMove(board);
+    history.emplace_back(board, move);
     MakeMove(move);
     return move;
 }

@@ -13,9 +13,9 @@ private:
     std::weak_ptr<Node> parent;
 
     bool expanded = false;
-
     StonePos pos;
     Color color;
+    
     bool isFirstOfMove;
 
     unsigned int visitCount = 0;

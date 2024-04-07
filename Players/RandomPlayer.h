@@ -9,8 +9,8 @@ class RandomPlayer : public Player {
 private:
     static StonePos GetRandomPos(const Board &board, StonePos prev);
 public:
-    RandomPlayer(std::string name, std::shared_ptr<InfoLogger> logger) : Player(std::move(name), std::move(logger)) {}
-    Move GetMove(const Board &board, const Move &prevMove) override;
+    RandomPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger) : Player(name, std::move(logger)) {}
+    Move GetMove(const Board &board) override;
 };
 
 

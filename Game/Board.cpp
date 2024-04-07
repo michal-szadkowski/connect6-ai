@@ -113,17 +113,17 @@ int Board::ConnectedCount(const std::bitset<BOARD_SIZE * BOARD_SIZE> &board, con
     for (int i = 0; i < 5; i++) {
         p += {dx, dy};
         if (!InBoard(p)) return i;
-        bool is = board.test(xy2n(p));
+        bool is = board[xy2n(p)];
         if (!is)return i;
     }
     return 5;
 }
 
 int Board::xy2n(const StonePos &pos) {
-    if (pos.GetX() >= BOARD_SIZE || pos.GetX() < 0)
-        throw std::out_of_range("x");
-    if (pos.GetY() >= BOARD_SIZE || pos.GetY() < 0)
-        throw std::out_of_range("y");
+//    if (pos.GetX() >= BOARD_SIZE || pos.GetX() < 0)
+//        throw std::out_of_range("x");
+//    if (pos.GetY() >= BOARD_SIZE || pos.GetY() < 0)
+//        throw std::out_of_range("y");
     return pos.GetX() * BOARD_SIZE + pos.GetY();
 }
 Color Board::GetResult() const {

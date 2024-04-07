@@ -18,10 +18,13 @@ private:
     void PostMoveToTree(const Move &move);
     void RunTreeAlgorithm();
 public:
-    MctsPlayer(std::string name, std::shared_ptr<InfoLogger> logger, int explorations = 250000, int simulations = 5,
-               double expRate = 0.4);
+    MctsPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger, int explorations = 250000,
+               int simulations = 5,
+               double expRate = 0.42);
 
-    Move GetMove(const Board &board, const Move &prevMove) override;
+    Move GetMove(const Board &board) override;
+    void UpdateOnGame(const Move &move, const Board &board) override;
+
 };
 
 
