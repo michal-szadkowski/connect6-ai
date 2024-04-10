@@ -9,7 +9,7 @@
 class HumanPlayer : public Player {
 public:
     HumanPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger);
-    Move GetMove(const Board &board) override;
+    Move GetMove(const Board &board, const Move &prevMove) override;
 };
 
 

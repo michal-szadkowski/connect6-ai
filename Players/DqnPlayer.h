@@ -15,8 +15,7 @@ private:
 public:
     DqnPlayer(const std::string &name, Agent &agent, std::shared_ptr<InfoLogger> logger) :
             Player(name, std::move(logger)), agent(agent) {}
-    Move GetMove(const Board &board) override;
-    void UpdateOnGame(const Move &move, const Board &board) override;
+    Move GetMove(const Board &board, const Move &prevMove) override;
     void Train() { agent.Train(100); }
 };
 

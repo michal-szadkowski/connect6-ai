@@ -30,28 +30,32 @@ int main(int argc, const char *argv[]) {
 
 
     std::shared_ptr<ConsoleLogger> cl = std::make_shared<ConsoleLogger>(0);
-    Agent agent(35000);
+    Agent agent(20000);
 //    agent.Load("dqnPreTr.pt");
 
-    agent.Load("13000dqnPreTr6.pt");
+//    agent.Load("./mmCh/t/40800dqnminmax6.pt");
 
-    for (int i = 0; i < 25000; ++i) {
+    cl = std::make_shared<ConsoleLogger>(1);
+
+
+    for (int i = 0; i < 75000; ++i) {
         if (i % 100 == 0)
             cl = std::make_shared<ConsoleLogger>(1);
         else
             cl = std::make_shared<ConsoleLogger>(0);
-
-//        RandomPlayer p1("p1", std::make_shared<InfoLogger>());
+        double e = 0.85 - (i * 1.0 / (55000)) + 0.05;
+        agent.SetEps(e);
         DqnPlayer p1("p1", agent, cl);
         DqnPlayer p2("p2", agent, cl);
         Game game(p1, p2, *cl);
         game.Play();
-        std::cout << i << "  ";
+        std::cout << "\t" << i << "\t" << " eps: " << e << "\t";
 
-        std::cout << agent.Train(20) << std::endl;
-        if (i % 1000 == 0) {
-            agent.Save(std::format("{}dqnPreTr6.pt", i));
+        std::cout << agent.Train(35);
+        if (i % 400 == 0) {
+            agent.Save(std::format("./mmCh/c6/{}dqnminmax6.pt", i));
         }
+        std::cout << std::endl;
     }
 
     cl = std::make_shared<ConsoleLogger>(1);

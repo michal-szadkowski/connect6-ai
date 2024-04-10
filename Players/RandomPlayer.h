@@ -10,7 +10,7 @@ private:
     static StonePos GetRandomPos(const Board &board, StonePos prev);
 public:
     RandomPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger) : Player(name, std::move(logger)) {}
-    Move GetMove(const Board &board) override;
+    Move GetMove(const Board &board, const Move &prevMove) override;
 };
 
 

@@ -18,8 +18,7 @@ public:
     std::string Name() { return name; }
     void SetColor(Color newColor);
     Color GetColor();
-    virtual Move GetMove(const Board &board) = 0;
-    virtual void UpdateOnGame(const Move &move, const Board &board) {};
+    virtual Move GetMove(const Board &board, const Move &prevMove) = 0;
     virtual ~Player() = default;
 };
 

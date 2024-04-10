@@ -9,3 +9,4 @@ StonePos &StonePos::operator+=(const StonePos &pos) {
     this->y += pos.y;
     return *this;
 }
+

@@ -1,7 +1,7 @@
 #include "RandomPlayer.h"
 #include "../Random.h"
 
-Move RandomPlayer::GetMove(const Board &board) {
+Move RandomPlayer::GetMove(const Board &board, const Move &prevMove) {
     auto pos1 = GetRandomPos(board, StonePos::Empty());
     if (!board.ExpectingFullMove())
         return {pos1, StonePos::Empty(), this->GetColor()};

@@ -11,14 +11,8 @@ MctsPlayer::MctsPlayer(const std::string &name, std::shared_ptr<InfoLogger> logg
     tree = std::make_unique<Tree>();
 }
 
-void MctsPlayer::UpdateOnGame(const Move &move, const Board &board) {
-    if (board.GetResult() != Color::None)
-        tree = nullptr;
-    else
-        PostMoveToTree(move);
-}
-
-Move MctsPlayer::GetMove(const Board &board) {
+Move MctsPlayer::GetMove(const Board &board, const Move &prevMove) {
+    PostMoveToTree(prevMove);
     auto start = std::chrono::high_resolution_clock::now();
     RunTreeAlgorithm();
     auto end = std::chrono::high_resolution_clock::now();

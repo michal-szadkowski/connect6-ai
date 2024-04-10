@@ -22,8 +22,7 @@ public:
                int simulations = 5,
                double expRate = 0.42);
 
-    Move GetMove(const Board &board) override;
-    void UpdateOnGame(const Move &move, const Board &board) override;
+    Move GetMove(const Board &board, const Move &prevMove) override;
 
 };
 
