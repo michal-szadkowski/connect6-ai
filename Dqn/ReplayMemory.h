@@ -2,26 +2,37 @@
 #define CONNECT6_AI_REPLAYMEMORY_H
 
 #include "../Game/Board.h"
+#include <torch/torch.h>
 
+#include <utility>
 
 struct Experience {
-    Board start;
-    StonePos action;
+    torch::Tensor start;
+    std::pair<int, int> action;
     double reward = 0;
-    Board result;
-    Experience() = default;
-    Experience(const Board &start, StonePos &action, double reward, const Board &result)
-            : start(start), action(action), reward(reward), result(result) {};
+    bool switchTurns = false;
+    torch::Tensor result;
+    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool switchTurns,
+               torch::Tensor result)
+        : start(start.clone()), action(action), reward(reward), switchTurns(switchTurns), result(result.clone()) {
+    }
 };
 
 class ReplayMemory {
 private:
     std::vector<Experience> experiences;
     int maxSize;
+    static void Rotate(torch::Tensor &t);
+    static void Rotate(std::pair<int, int> &p);
+    static void Flip(torch::Tensor &t);
+    static void Flip(std::pair<int, int> &p);
+    static Experience Randomize(const Experience &exp);
+
 public:
-    ReplayMemory(int maxSize) : maxSize(maxSize) {}
+    ReplayMemory(int maxSize) : maxSize(maxSize) {
+    }
     std::vector<Experience> GetRandomSample(int sampleSize);
-    void AddExperience(Experience exp);
+    void AddExperience(const Experience &exp);
 };
 
 

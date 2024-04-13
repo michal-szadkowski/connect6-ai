@@ -3,14 +3,14 @@
 #include "Game.h"
 
 Game::Game(Player &black, Player &white, GameLogger &logger)
-        : black(black), white(white), logger(logger) {
+    : black(black), white(white), logger(logger) {
     board = Board();
     black.SetColor(Color::Black);
     white.SetColor(Color::White);
 }
 
 Game::Game(Player &black, Player &white, const Board &board, GameLogger &logger)
-        : Game(black, white, logger) {
+    : Game(black, white, logger) {
     this->board = board;
 }
 
@@ -43,8 +43,10 @@ Move Game::MakePlayerTurn(Player &player, const Move &prevMove) {
 }
 
 bool Game::IsLegal(const Move &move) {
-    if (move.GetColor() != board.GetTurn()) return false;
-    if (move.GetFirst() == move.GetSecond()) return false;
+    if (move.GetColor() != board.GetTurn())
+        return false;
+    if (move.GetFirst() == move.GetSecond())
+        return false;
     if (!board.IsEmpty(move.GetFirst()))
         return false;
     if (!board.ExpectingFullMove() && !move.IsHalf()) {

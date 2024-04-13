@@ -11,79 +11,86 @@
 
 
 int main(int argc, const char *argv[]) {
-//    ArgumentParser args(argc, argv);
-//    EnvironmentCreator ec(args);
-//    ec.SetLogger();
-//    int score = 0;
-//    for (int i = 0; i < ec.GetGameCount(); ++i) {
-//        auto p1 = ec.GetPlayer("p1");
-//        auto p2 = ec.GetPlayer("p2");
-//        if (i % 2) std::swap(p1, p2);
-//        Game game = Game(*p1, *p2, *ec.GetGameLogger());
-//        auto result = game.Play();
-//        if (result == Color::Black) score += 1;
-//        if (result == Color::White) score -= 1;
-//        score = -score;
-//    }
-//    if (ec.GetGameCount() % 2) score = -score;
-//    ec.GetInfoLogger()->WriteInfo("game", std::to_string(score));
+    //    ArgumentParser args(argc, argv);
+    //    EnvironmentCreator ec(args);
+    //    ec.SetLogger();
+    //    int score = 0;
+    //    for (int i = 0; i < ec.GetGameCount(); ++i) {
+    //        auto p1 = ec.GetPlayer("p1");
+    //        auto p2 = ec.GetPlayer("p2");
+    //        if (i % 2) std::swap(p1, p2);
+    //        Game game = Game(*p1, *p2, *ec.GetGameLogger());
+    //        auto result = game.Play();
+    //        if (result == Color::Black) score += 1;
+    //        if (result == Color::White) score -= 1;
+    //        score = -score;
+    //    }
+    //    if (ec.GetGameCount() % 2) score = -score;
+    //    ec.GetInfoLogger()->WriteInfo("game", std::to_string(score));
+    //
 
+    torch::Device device(torch::kCPU);
+    if (torch::cuda::is_available()) {
+        std::cout << "CUDA is available! Training on GPU." << std::endl;
+        device = torch::Device(torch::kCUDA);
+    }
 
-    std::shared_ptr<ConsoleLogger> cl = std::make_shared<ConsoleLogger>(0);
-    Agent agent(20000);
-//    agent.Load("dqnPreTr.pt");
+    auto cl = std::make_shared<ConsoleLogger>(0);
+    Agent agent(40000, device);
+    for (int i = 0; i < 100000; ++i) {
+        auto s = std::chrono::high_resolution_clock::now();
 
-//    agent.Load("./mmCh/t/40800dqnminmax6.pt");
-
-    cl = std::make_shared<ConsoleLogger>(1);
-
-
-    for (int i = 0; i < 75000; ++i) {
         if (i % 100 == 0)
             cl = std::make_shared<ConsoleLogger>(1);
         else
             cl = std::make_shared<ConsoleLogger>(0);
-        double e = 0.85 - (i * 1.0 / (55000)) + 0.05;
+        double e = std::max(0.3 - i * 0.3 / 20000, 0.05);
         agent.SetEps(e);
+
         DqnPlayer p1("p1", agent, cl);
         DqnPlayer p2("p2", agent, cl);
         Game game(p1, p2, *cl);
         game.Play();
-        std::cout << "\t" << i << "\t" << " eps: " << e << "\t";
 
-        std::cout << agent.Train(35);
-        if (i % 400 == 0) {
-            agent.Save(std::format("./mmCh/c6/{}dqnminmax6.pt", i));
+        auto err = agent.Train(40);
+        if (i % 500 == 0) {
+            agent.Save(std::format("./a{}6m.pt", i));
         }
+
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::high_resolution_clock::now() - s);
+        std::cout << std::format("\t it:{:6} \t {: 6f}  {: 6f} \t eps: {:5.4f} \t err: {:5f} \t {}",
+                                 i, p1.GetAccWin(), p2.GetAccWin(), e, err, elapsed.count());
         std::cout << std::endl;
     }
 
-    cl = std::make_shared<ConsoleLogger>(1);
+    // cl = std::make_shared<ConsoleLogger>(1);
 
-//    RandomPlayer p1("p1", cl);
-//    DqnPlayer p2("p2", agent, cl);
-//    Game game(p1, p2, *cl);
-//    game.Play();
+    //    RandomPlayer p1("p1", cl);
+    //    DqnPlayer p2("p2", agent, cl);
+    //    Game game(p1, p2, *cl);
+    //    game.Play();
 
-//    for (int i = 0; i < 30000; ++i) {
-//        DqnPlayer p1("p1", agent, cl);
-//        DqnPlayer p2("p2", agent, cl);
-//        Game game(p1, p2, *cl);
-//        game.Play();
-//        std::cout << i << "  ";
-//
-//        std::cout << agent.Train(50) << std::endl;
-//        if (i % 1000 == 0)
-//            agent.Save(std::format("{}train.pt", i));
-//
-//    }
-//    cl = std::make_shared<ConsoleLogger>(1);
-//    agent.Save("mctsTr.pt");
+    //    for (int i = 0; i < 30000; ++i) {
+    //        DqnPlayer p1("p1", agent, cl);
+    //        DqnPlayer p2("p2", agent, cl);
+    //        Game game(p1, p2, *cl);
+    //        game.Play();
+    //        std::cout << i << "  ";
+    //
+    //        std::cout << agent.Train(50) << std::endl;
+    //        if (i % 1000 == 0)
+    //            agent.Save(std::format("{}train.pt", i));
+    //
+    //    }
+    //    cl = std::make_shared<ConsoleLogger>(1);
+    //    agent.Save("mctsTr.pt");
 
-//    MctsPlayer p1("p1", cl, 10000, 1, 1);
-//    DqnPlayer p2("p2", agent, cl);
-//    Game game(p1, p2, *cl);
-//    game.Play();
+    //    MctsPlayer p1("p1", cl, 10000, 1, 1);
+    //    DqnPlayer p2("p2", agent, cl);
+    //    Game game(p1, p2, *cl);
+    //    game.Play();
+
 
     return 0;
 }
