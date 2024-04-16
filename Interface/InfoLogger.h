@@ -4,9 +4,10 @@
 
 #include <string>
 
-class InfoLogger {
+class InfoLogger
+{
 public:
-    virtual void WriteInfo(const std::string &name, __attribute__((unused)) const std::string &info) {};
+    virtual void WriteInfo(const std::string& prefix, const std::string& info) = 0;
     virtual ~InfoLogger() = default;
 };
 

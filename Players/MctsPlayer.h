@@ -7,23 +7,23 @@
 #include "../Mcts/Tree.h"
 #include "../Interface/GameLogger.h"
 
-class MctsPlayer : public Player {
+class MctsPlayer : public Player
+{
 private:
     std::unique_ptr<Tree> tree;
-    int expCount = 250000;
-    int simCount = 5;
-    double expRate = 0.4;
+    int expCount;
+    int simCount;
+    double expRate;
 
-    static Color SimulateGame(const Board &board);
-    void PostMoveToTree(const Move &move);
+    static Color SimulateGame(const Board& board);
+    void PostMoveToTree(const Move& move);
     void RunTreeAlgorithm();
+
 public:
-    MctsPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger, int explorations = 250000,
-               int simulations = 5,
+    MctsPlayer(const std::string& name, std::shared_ptr<InfoLogger> logger, int explorations = 250000, int simulations = 5,
                double expRate = 0.42);
 
-    Move GetMove(const Board &board, const Move &prevMove) override;
-
+    Move GetMove(const Board& board, const Move& prevMove) override;
 };
 
 

@@ -1,33 +1,44 @@
 #include "DqnPlayer.h"
 
-Move DqnPlayer::GetMove(const Board &board, const Move &prevMove) {
-    auto [first,c1] = agent.GetMove(board);
-    accWin += c1;
-    StonePos second = StonePos::Empty();
+#include "../Random.h"
+
+Move DqnPlayer::GetMove(const Board& board, const Move& prevMove)
+{
+    auto p1 = GetPositionFromBoard(board);
     Board b2 = board;
-    b2.PutStone(first, this->GetColor());
-    moveCnt++;
-    if (b2.GetResult() == Color::None && board.ExpectingFullMove()) {
-        auto secMove = agent.GetMove(b2);
-        second = secMove.first;
-        accWin += secMove.second;
-        moveCnt++;
-    }
-    AddExperienceFromOwnMove(board, {first, second, this->GetColor()});
-    return Move(first, second, this->GetColor());
+    b2.PutStone(p1, this->GetColor());
+
+    auto p2 = StonePos::Empty();
+    if (b2.GetResult() == Color::None && board.ExpectingFullMove()) { p2 = GetPositionFromBoard(b2); }
+
+    AddExperienceFromOwnMove(board, {p1, p2, this->GetColor()});
+    return {p1, p2, this->GetColor()};
 }
 
-void DqnPlayer::AddExperienceFromOwnMove(const Board &board, const Move &move) {
+StonePos DqnPlayer::GetPositionFromBoard(const Board& board)
+{
+    if (Random::RandomDoble() < eps) { return Random::SelectRandomElement(board.GetAllEmpty()); }
+    auto [result2, c] = agent.GetMove(board);
+    accWin += c;
+    moveCnt++;
+
+    return result2;
+}
+
+void DqnPlayer::AddExperienceFromOwnMove(const Board& board, const Move& move)
+{
     Board b2 = board;
     auto first = move.GetFirst();
     auto second = move.GetSecond();
-    if (first != StonePos::Empty()) {
-        b2.PutStone(first, this->GetColor());
+    if (first != StonePos::Empty())
+    {
+        b2.PutStone(first, move.GetColor());
         agent.AddExperience(board, first, b2);
     }
-    if (second != StonePos::Empty()) {
+    if (second != StonePos::Empty())
+    {
         Board b3 = b2;
-        b3.PutStone(second, this->GetColor());
+        b3.PutStone(second, move.GetColor());
         agent.AddExperience(b2, second, b3);
     }
 }

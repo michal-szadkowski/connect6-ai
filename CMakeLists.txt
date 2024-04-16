@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 project(connect6_ai)
 
+set(CMAKE_CUDA_ARCHITECTURES 61)
+set(CMAKE_CUDA_COMPILER /opt/cuda/bin/nvcc)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_STANDARD 23)
 
@@ -45,6 +47,12 @@ add_executable(connect6_ai main.cpp
         Dqn/ReplayMemory.h
         Dqn/Network.cpp
         Dqn/Network.h
+        Arguments/Environments/Environment.h
+        Arguments/Environments/PlayEnv.cpp
+        Arguments/Environments/PlayEnv.h
+        Arguments/Environments/DqnTrainEnv.cpp
+        Arguments/Environments/DqnTrainEnv.h
+        Interface/NoLogger.h
 )
 target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
 target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})

@@ -6,23 +6,26 @@
 #include "../Players/Player.h"
 #include "../Interface/GameLogger.h"
 
-class Game {
+class Game
+{
 private:
-    Player &black;
-    Player &white;
+    Player& black;
+    Player& white;
     Board board;
 
-    GameLogger &logger;
+    std::shared_ptr<GameLogger> logger;
 
     std::vector<std::pair<Board, Move>> history;
 
-    Move MakePlayerTurn(Player &player, const Move &prevMove);
-    bool IsLegal(const Move &move);
-    void MakeMove(const Move &move);
-public:
-    Game(Player &black, Player &white, GameLogger &logger);
-    Game(Player &black, Player &white, const Board &board, GameLogger &logger);
+    Move MakePlayerTurn(Player& player, const Move& prevMove);
+    bool IsLegal(const Move& move);
+    void MakeMove(const Move& move);
 
+public:
+    Game(Player& black, Player& white, std::shared_ptr<GameLogger> logger);
+    Game(Player& black, Player& white, const Board& board, std::shared_ptr<GameLogger> logger);
+
+    std::vector<std::pair<Board, Move>> GetHistory() { return history; }
     Color Play();
 };
 

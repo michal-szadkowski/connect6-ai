@@ -6,25 +6,29 @@
 #include <utility>
 #include "../Players/Player.h"
 #include "ArgumentParser.h"
+#include "../Players/DqnPlayer.h"
 #include "../Players/HumanPlayer.h"
 #include "../Players/MctsPlayer.h"
 #include "../Players/RandomPlayer.h"
+#include "Environments/Environment.h"
 
-class EnvironmentCreator {
+class EnvironmentCreator
+{
     ArgumentParser args;
     std::shared_ptr<InfoLogger> infoLogger;
     std::shared_ptr<GameLogger> gameLogger;
+
 public:
-    EnvironmentCreator(ArgumentParser &args) : args(std::move(args)) {}
+    EnvironmentCreator(ArgumentParser& args) : args(std::move(args)) {}
 
     void SetLogger();
-    std::unique_ptr<Player> GetPlayer(const std::string &name);
-    std::shared_ptr<GameLogger> GetGameLogger() { return gameLogger; }
-    std::shared_ptr<InfoLogger> GetInfoLogger() { return infoLogger; }
+    std::shared_ptr<Player> GetPlayer(const std::string& name);
+    std::shared_ptr<MctsPlayer> GetMctsPlayer(const std::string& name);
+    std::shared_ptr<DqnPlayer> GetDqnPlayer(const std::string& name);
 
-    std::unique_ptr<MctsPlayer> GetMctsPlayer(const std::string &name);
-
-    int GetGameCount();
+    std::shared_ptr<Environment> CreatePlayEnv();
+    std::shared_ptr<Environment> CreateTrainEnv();
+    std::shared_ptr<Environment> Create();
 
     void PrintUsage();
 };

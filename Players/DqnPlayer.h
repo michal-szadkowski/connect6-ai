@@ -7,19 +7,25 @@
 #include <utility>
 #include "../Dqn/Agent.h"
 
-class DqnPlayer : public Player {
+class DqnPlayer final : public Player
+{
 private:
-    Agent &agent;
-
+    Agent& agent;
+    double eps = 0;
     double accWin = 0;
     int moveCnt = 0;
-    void AddExperienceFromOwnMove(const Board &board, const Move &move);
+    void AddExperienceFromOwnMove(const Board& board, const Move& move);
 
 public:
-    DqnPlayer(const std::string &name, Agent &agent,
-              std::shared_ptr<InfoLogger> logger) : Player(name, std::move(logger)), agent(agent) {
+    DqnPlayer(const std::string& name, Agent& agent, std::shared_ptr<InfoLogger> logger, double eps)
+        : Player(name, std::move(logger)), agent(agent)
+    {
+        if (eps >= 0)
+            this->eps = eps;
     }
-    Move GetMove(const Board &board, const Move &prevMove) override;
+
+    Move GetMove(const Board& board, const Move& prevMove) override;
+    StonePos GetPositionFromBoard(const Board& board);
     double GetAccWin() { return accWin / moveCnt; };
 };
 

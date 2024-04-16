@@ -3,8 +3,10 @@
 
 #include <torch/nn.h>
 
-struct NNetImpl : torch::nn::Module {
-    NNetImpl() {
+struct NNetImpl : torch::nn::Module
+{
+    NNetImpl()
+    {
         register_module("layer1", layer1);
         register_module("layer2", layer2);
         register_module("layer3", layer3);
@@ -12,13 +14,14 @@ struct NNetImpl : torch::nn::Module {
         register_module("fc2", fc2);
     }
 
-    torch::Tensor forward(torch::Tensor x) {
+    torch::Tensor forward(torch::Tensor x)
+    {
         x = layer1->forward(x);
         x = layer2->forward(x);
         x = layer3->forward(x);
-        x = x.view({-1, 400});
+        x = x.view({-1, 1600});
         x = fc->forward(x);
-        x = torch::nn::Tanh()->forward(x);
+        x = torch::nn::Sigmoid()->forward(x);
         x = fc2->forward(x);
         x = torch::nn::Tanh()->forward(x);
         return x.view({-1, 19, 19});
@@ -40,14 +43,14 @@ struct NNetImpl : torch::nn::Module {
     };
 
     torch::nn::Sequential layer3{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 1, 1).stride(1)),
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 4, 3).stride(1).padding(1)),
         torch::nn::LeakyReLU(),
         //            torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
     };
 
 
-    torch::nn::Linear fc{400, 600};
-    torch::nn::Linear fc2{600, 19 * 19};
+    torch::nn::Linear fc{1600, 800};
+    torch::nn::Linear fc2{800, 19 * 19};
 };
 
 TORCH_MODULE(NNet);
