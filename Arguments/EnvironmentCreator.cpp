@@ -17,16 +17,13 @@ play parameters:
     p<1,2>-mcts-exp=250000 (default)
     p<1,2>-mcts-sim=5 (default)
     p<1,2>-mcts-expRate=0.43 (default)
-    p<1,2>-dqn-inModel=
+    p<1,2>-dqn-inmodel=
 train parameters:
-    startEps=0.5 (default)
-    endEps=0.2 (default)
-    iterEps=70000 (default)
-    memory=100000 (default)
+    memory=150000 (default)
     iters=400000 (default)
-    inModel=
+    inmodel=
     checkPt= 
-    outModel=
+    outmodel=
 )";
 }
 
@@ -48,10 +45,10 @@ std::shared_ptr<Environment> EnvironmentCreator::CreateTrainEnv()
     if (out == "")
         throw std::logic_error("No outmodel");
 
-    int mem = 100000;
+    int mem = 150000;
     args.TryGetT("memory", mem);
 
-    int it = 400000;
+    int it = 50000;
     args.TryGetT("iters", it);
 
     auto env = std::make_shared<DqnTrainEnv>(gameLogger, infoLogger, mem, it);
@@ -59,14 +56,6 @@ std::shared_ptr<Environment> EnvironmentCreator::CreateTrainEnv()
     env->SetLoad(in);
     env->SetCheckpointDir(checkPt);
     env->SetSave(out);
-
-    double startEps = 0.6, endEps = 0.2;
-    int epsIterCount = 70000;
-    args.TryGetT("startEps", startEps);
-    args.TryGetT("endEps", endEps);
-    args.TryGetT("itersEps", epsIterCount);
-
-    env->Eps(startEps, endEps, epsIterCount);
 
     return env;
 }
@@ -88,6 +77,7 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
         std::cout << e.what();
         PrintUsage();
     }
+    return nullptr;
 }
 
 std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string& name)
@@ -97,6 +87,7 @@ std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string& name)
         throw std::logic_error("No parameter for player " + name);
     if (type == "mcts") { return GetMctsPlayer(name); }
     if (type == "human") { return std::make_unique<HumanPlayer>(name, infoLogger); }
+    if (type == "dqn") { return GetDqnPlayer(name); }
     if (type == "random") { return std::make_unique<RandomPlayer>(name, infoLogger); }
     throw std::logic_error("Invalid player for " + name);
 }
@@ -112,6 +103,20 @@ std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string&
     args.TryGetT(prefix + "sim", simCount);
     args.TryGetT(prefix + "expRate", simCount);
     return std::make_unique<MctsPlayer>(name, infoLogger, expCount, simCount, expRate);
+}
+
+std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string& name)
+{
+    std::string prefix = name + "-dqn-";
+
+    std::string in;
+    args.TryGetT(prefix + "inmodel", in);
+    if (in == "")
+        throw std::logic_error("No inmodel");
+
+    Agent agent(0);
+    agent.Load(in);
+    return std::make_shared<DqnPlayer>(name, agent, infoLogger, false);
 }
 
 void EnvironmentCreator::SetLogger()

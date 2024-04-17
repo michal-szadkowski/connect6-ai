@@ -23,14 +23,15 @@ public:
     {
         memory = std::make_shared<ReplayMemory>(memSize);
         net = NNet();
-        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(0.0005).eps(0.05));
+        net->to(device);
+        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(0.001).weight_decay(1e-6));
     }
 
     Agent(const Agent& agent);
 
     void ToDevice(torch::Device device);
 
-    std::pair<StonePos, double> GetMove(const Board& board);
+    std::pair<StonePos, double> GetMove(const Board& board, bool stochastic = false);
     double Train(int batches);
 
     void Save(const std::string& path);

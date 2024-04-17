@@ -28,12 +28,11 @@ void Agent::CloneModel(torch::nn::Module& model, const torch::nn::Module& target
 }
 
 
-Agent::Agent(const Agent& agent): memory(agent.memory)
+Agent::Agent(const Agent& agent): memory(agent.memory), device(torch::Device(agent.device.type()))
 {
     net = NNet();
-    net->to(agent.device);
     CloneModel(*net, *(agent.net));
-    device = agent.device;
+    net->to(agent.device);
     optimizer = agent.optimizer;
 }
 
@@ -43,18 +42,36 @@ void Agent::ToDevice(torch::Device device)
     this->net->to(device);
 }
 
-std::pair<StonePos, double> Agent::GetMove(const Board& board)
+std::pair<StonePos, double> Agent::GetMove(const Board& board, bool stochastic)
 {
     StonePos pos;
 
     auto t1 = Board2Tensor(board).unsqueeze(0).to(device);
     auto q1 = net->forward(t1);
-    q1 = q1 - t1[0][0].abs() * 3;
-    int max = q1.argmax().item<int>();
-    pos = StonePos(max / 19, max % 19);
-    auto c = q1[0][pos.GetX()][pos.GetY()].item<double>();
-
-
+    q1 = q1 + 1 - t1[0][0].abs() * 3;
+    int posId;
+    double c = 0;
+    if (stochastic)
+    {
+        q1 = q1.squeeze(0).flatten();
+        q1 = q1.clamp(0, 2);
+        auto p = q1.cumsum(0);
+        p = p / p.max();
+        auto r = 1 - Random::RandomDouble();
+        posId = searchsorted(p, r, false, true).item<int>();
+        while (t1[0][0][posId / 19][posId % 19].item<int>() != 0)
+        {
+            posId++;
+            posId = posId % (19 * 19);
+        }
+        c = q1[posId].item<double>();
+    }
+    else
+    {
+        posId = q1.argmax().item<int>();
+        c = q1[0][pos.GetX()][pos.GetY()].item<double>();
+    }
+    pos = StonePos(posId / 19, posId % 19);
     return {pos, c};
 }
 
@@ -64,13 +81,14 @@ double Agent::Train(int batches)
     double lossTotal = 0;
     const int sampleSize = 256;
     NNet net2;
-    CloneModel(*net2, *net);
     net2->to(device);
+    // net->to(device);
     for (int i = 0; i < batches; ++i)
     {
+        if (i % 500 == 0)
+            CloneModel(*net2, *net);
         auto sample = memory->GetRandomSample(sampleSize);
         optimizer->zero_grad();
-        net->zero_grad();
         torch::Tensor start = torch::zeros({sampleSize, 2, 19, 19});
         torch::Tensor result = torch::zeros({sampleSize, 2, 19, 19});
 
@@ -103,7 +121,7 @@ double Agent::Train(int batches)
             }
         }
 
-        auto crit = torch::nn::SmoothL1Loss();
+        auto crit = torch::nn::MSELoss();
         auto loss = crit(q1, target);
         lossTotal += loss.item<double>();
         loss.backward();
@@ -133,7 +151,11 @@ torch::Tensor Agent::Board2Tensor(const Board& board)
 
 void Agent::Save(const std::string& path) { torch::save(net, path); }
 
-void Agent::Load(const std::string& path) { torch::load(net, path); }
+void Agent::Load(const std::string& path)
+{
+    torch::load(net, path);
+    net->to(device);
+}
 
 void Agent::AddExperience(const Board& start, const StonePos& pos, const Board& result)
 {

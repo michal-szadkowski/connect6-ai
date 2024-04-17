@@ -21,31 +21,20 @@ struct NNetImpl : torch::nn::Module
         x = layer3->forward(x);
         x = x.view({-1, 1600});
         x = fc->forward(x);
-        x = torch::nn::Sigmoid()->forward(x);
+        x = torch::nn::Tanh()->forward(x);
         x = fc2->forward(x);
         x = torch::nn::Tanh()->forward(x);
         return x.view({-1, 19, 19});
     }
 
     torch::nn::Sequential layer1{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 64, 6).stride(1).padding(3)),
-        torch::nn::LeakyReLU(),
-        torch::nn::BatchNorm2d(64),
-
-        //            torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(3).stride(3))
-
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 64, 6).stride(1).padding(3)), torch::nn::LeakyReLU(), torch::nn::BatchNorm2d(64),
     };
-    torch::nn::Sequential layer2{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).stride(1).padding(1)),
-        torch::nn::LeakyReLU(),
-
-        // torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
-    };
+    torch::nn::Sequential layer2{torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).stride(1).padding(1)), torch::nn::LeakyReLU(),};
 
     torch::nn::Sequential layer3{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 4, 3).stride(1).padding(1)),
-        torch::nn::LeakyReLU(),
-        //            torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 4, 3).stride(1).padding(1)), torch::nn::LeakyReLU()
+        //torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
     };
 
 

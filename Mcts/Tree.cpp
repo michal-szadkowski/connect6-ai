@@ -69,6 +69,8 @@ std::shared_ptr<Node> Tree::ExpandAndGetForSimulation(const std::shared_ptr<Node
         return Random::SelectRandomElement(children);
 }
 
+Board Tree::GetBoardForNode(const std::shared_ptr<Node>& node) const { return node->GetResultingBoard(rootBoard); }
+
 std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Tree::GetBestSequence() {
     std::shared_ptr<Node> first, second;
     auto ch1 = root->GetChildren();

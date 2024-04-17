@@ -11,13 +11,15 @@ std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
         return result;
     if (experiences.empty())
         throw std::logic_error("no experiences to sample from");
-    std::ranges::sample(experiences, std::back_insert_iterator(result), sampleSize, Random::getGen());
+    std::ranges::sample(experiences, std::back_insert_iterator(result), sampleSize, Random::GetGen());
     for (int i = 0; i < sampleSize; i++) { result[i] = Randomize(result[i]); }
     return result;
 }
 
 void ReplayMemory::AddExperience(const Experience& exp)
 {
+    if (maxSize == 0)
+        return;
     std::lock_guard<std::mutex> lock{expmutex};
     while (experiences.size() >= maxSize)
     {

@@ -1,16 +1,19 @@
 #include "MctsPlayer.h"
+#include <chrono>
+#include <thread>
+#include <utility>
 #include "../Game/Game.h"
 #include "RandomPlayer.h"
-#include <chrono>
-#include <utility>
-#include <thread>
 
 #include "../Interface/NoLogger.h"
 
-MctsPlayer::MctsPlayer(const std::string& name, std::shared_ptr<InfoLogger> logger, int explorations, int simulations, double expRate)
-    : Player(name, std::move(logger)), expCount(explorations), simCount(simulations), expRate(expRate) { tree = std::make_unique<Tree>(); }
+MctsPlayer::MctsPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger, int explorations, int simulations, double expRate) :
+    Player(name, std::move(logger)), expCount(explorations), simCount(simulations), expRate(expRate)
+{
+    tree = std::make_unique<Tree>();
+}
 
-Move MctsPlayer::GetMove(const Board& board, const Move& prevMove)
+Move MctsPlayer::GetMove(const Board &board, const Move &prevMove)
 {
     PostMoveToTree(prevMove);
     auto start = std::chrono::high_resolution_clock::now();
@@ -31,14 +34,15 @@ Move MctsPlayer::GetMove(const Board& board, const Move& prevMove)
     else
     {
         move = {s.first->GetPosition(), s.second->GetPosition(), this->GetColor()};
-        logger->WriteInfo(Name(), std::format("{:.5f} / {:d} {:.5f} / {:d} ", s.first->GetScore(), s.first->GetVisitCount(),
-                                              s.second->GetScore(), s.second->GetVisitCount()));
+        logger->WriteInfo(Name(),
+                          std::format("{:.5f} / {:d} {:.5f} / {:d} ", s.first->GetScore(), s.first->GetVisitCount(), s.second->GetScore(),
+                                      s.second->GetVisitCount()));
     }
     PostMoveToTree(move);
     return move;
 }
 
-Color MctsPlayer::SimulateGame(const Board& board)
+Color MctsPlayer::SimulateGame(const Board &board)
 {
     if (board.GetResult() != Color::None)
         return board.GetResult();
@@ -48,7 +52,7 @@ Color MctsPlayer::SimulateGame(const Board& board)
 }
 
 
-void MctsPlayer::PostMoveToTree(const Move& move)
+void MctsPlayer::PostMoveToTree(const Move &move)
 {
     if (move.GetFirst() != StonePos::Empty())
         tree->PushMoveToTree(move.GetFirst(), move.GetColor());
@@ -71,4 +75,3 @@ void MctsPlayer::RunTreeAlgorithm()
         }
     }
 }
-
