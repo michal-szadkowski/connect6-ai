@@ -52,6 +52,8 @@ add_executable(connect6_ai main.cpp
         Arguments/Environments/DqnTrainEnv.cpp
         Arguments/Environments/DqnTrainEnv.h
         Interface/NoLogger.h
+        Interface/FileLogger.cpp
+        Interface/FileLogger.h
 )
 target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
 target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})

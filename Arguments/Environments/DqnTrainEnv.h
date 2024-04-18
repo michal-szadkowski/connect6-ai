@@ -33,7 +33,7 @@ class DqnTrainEnv final : public Environment
     void SaveModel();
 
     /**
-     * Plays games in threads and sums threir results
+     * Plays games in threads and sums their results
      * @param gamesPerTh Amount of games played per thread
      * @param threads Amount of threads
      * @param stochastic Whtether the games should be stochastic
@@ -65,7 +65,7 @@ public:
     DqnTrainEnv(std::shared_ptr<GameLogger> gameLogger, std::shared_ptr<InfoLogger> infoLogger, int agentMemory, int iterations);
 
     /**
-     * Launches training loop. Each loop consists of playing 1250 games against self, training network for 1500 batches and playing 250
+     * Launches training loop. Each loop consists of playing 1250 games against self, training network for 2000 batches and playing 250
      * evaluating games against previous self. If new agent wins at least 130 games it advances as winner. If it wins at most 120 games it
      * is discarded.
      */

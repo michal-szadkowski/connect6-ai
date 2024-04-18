@@ -11,12 +11,13 @@ void EnvironmentCreator::PrintUsage()
     std::cout << R"(
 mode=play(default),train 
 play parameters:
-    games=
+    games=1,2...
     p<1,2>=mcts,dqn,random,human
     p<1,2>-mcts-exp=250000 (default)
     p<1,2>-mcts-sim=5 (default)
     p<1,2>-mcts-expRate=0.43 (default)
     p<1,2>-dqn-inmodel=
+    log=con(default),file
 train parameters:
     memory=150000 (default)
     iters=400000 (default)
@@ -72,7 +73,7 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
             return CreateTrainEnv();
         return nullptr;
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         std::cout << e.what();
         PrintUsage();
@@ -80,22 +81,34 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
     return nullptr;
 }
 
-std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string& name)
+std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string &name)
 {
     std::string type;
     if (!args.TryGetT(name, type))
         throw std::logic_error("No parameter for player " + name);
-    if (type == "mcts") { return GetMctsPlayer(name); }
-    if (type == "human") { return std::make_unique<HumanPlayer>(name, infoLogger); }
-    if (type == "dqn") { return GetDqnPlayer(name); }
-    if (type == "random") { return std::make_unique<RandomPlayer>(name, infoLogger); }
+    if (type == "mcts")
+    {
+        return GetMctsPlayer(name);
+    }
+    if (type == "human")
+    {
+        return std::make_unique<HumanPlayer>(name, infoLogger);
+    }
+    if (type == "dqn")
+    {
+        return GetDqnPlayer(name);
+    }
+    if (type == "random")
+    {
+        return std::make_unique<RandomPlayer>(name, infoLogger);
+    }
     throw std::logic_error("Invalid player for " + name);
 }
 
-std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string& name)
+std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string &name)
 {
     std::string prefix = name + "-mcts-";
-    int expCount = 250000;
+    int expCount = 350000;
     int simCount = 5;
     double expRate = 0.43;
 
@@ -105,7 +118,7 @@ std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string&
     return std::make_unique<MctsPlayer>(name, infoLogger, expCount, simCount, expRate);
 }
 
-std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string& name)
+std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string &name)
 {
     std::string prefix = name + "-dqn-";
 
@@ -132,5 +145,10 @@ void EnvironmentCreator::SetLogger()
         infoLogger = logger;
         gameLogger = logger;
     }
+    if (log == "file")
+    {
+        std::shared_ptr<FileLogger> logger(new FileLogger(verbosity));
+        infoLogger = logger;
+        gameLogger = logger;
+    }
 }
-

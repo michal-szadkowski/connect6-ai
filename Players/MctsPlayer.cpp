@@ -54,11 +54,23 @@ Color MctsPlayer::SimulateGame(const Board &board)
 
 void MctsPlayer::PostMoveToTree(const Move &move)
 {
-    if (move.GetFirst() != StonePos::Empty())
-        tree->PushMoveToTree(move.GetFirst(), move.GetColor());
+    StonePos smaller, bigger;
+    if (move.GetFirst() < move.GetSecond())
+    {
+        smaller = move.GetFirst();
+        bigger = move.GetSecond();
+    }
+    else
+    {
+        smaller = move.GetSecond();
+        bigger = move.GetFirst();
+    }
 
-    if (move.GetSecond() != StonePos::Empty())
-        tree->PushMoveToTree(move.GetSecond(), move.GetColor());
+    if (smaller != StonePos::Empty())
+        tree->PushMoveToTree(smaller, move.GetColor());
+
+    if (bigger != StonePos::Empty())
+        tree->PushMoveToTree(bigger, move.GetColor());
 }
 
 void MctsPlayer::RunTreeAlgorithm()
