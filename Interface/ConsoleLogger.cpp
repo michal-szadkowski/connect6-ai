@@ -10,8 +10,14 @@ void ConsoleLogger::WritePiece(Color piece, bool isFromPrevMove)
 {
     std::string s = WHITE ".";
     if (piece == Color::White)
-        s = isFromPrevMove ? BOLDWHITE : "" "X";
+    {
+        s = isFromPrevMove ? BOLDWHITE : "";
+        s += "X";
+    }
     if (piece == Color::Black)
-        s = isFromPrevMove ? BOLDWHITE : "" "O";;
+    {
+        s = isFromPrevMove ? BOLDWHITE : "";
+        s += "O";
+    };
     std::cout << s << RESET << " ";
 }

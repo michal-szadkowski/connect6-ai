@@ -12,6 +12,14 @@
  */
 class HumanPlayer : public Player
 {
+private:
+    /**
+     * Request position from user until it is valid.
+     * @param board Board to request move in
+     * @param prev Previously placed stone by user, in order to check if new input is different (not placing two stones in same spot)
+     */
+    StonePos RequestMove(const Board &board, const StonePos &prev);
+
 public:
     HumanPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger);
     /**

@@ -3,19 +3,35 @@
 #include <iostream>
 #include <utility>
 
+StonePos HumanPlayer::RequestMove(const Board &board, const StonePos &prev)
+{
+    int x = -1, y = -1;
+    StonePos pos = StonePos::Empty();
+    while (true)
+    {
+        logger->WriteInfo(Name(), "Please input position:");
+        logger->WriteInfo(Name(), "Row:");
+        std::cin >> x;
+        logger->WriteInfo(Name(), "Column:");
+        std::cin >> y;
+        pos = {static_cast<pos_t>(x), static_cast<pos_t>(y)};
+        if (x < 0 || x >= BOARD_SIZE || y < 0 || y > BOARD_SIZE || !board.IsEmpty(pos) || pos == prev)
+        {
+            logger->WriteInfo(Name(), "Invalid move!");
+            continue;
+        }
+        return pos;
+    }
+}
+
 Move HumanPlayer::GetMove(const Board &board, const Move &prevMove)
 {
-    int x1 = -1, y1 = -1;
-    int x2 = -1, y2 = -1;
-    std::string col = this->GetColor() == Color::Black ? "black" : "white";
-    logger->WriteInfo(Name(), col + " pos:\nfirst: ");
-    std::cin >> x1 >> y1;
+    StonePos first = RequestMove(board, StonePos::Empty());
     if (board.ExpectingFullMove())
     {
-        logger->WriteInfo(Name(), "second: ");
-        std::cin >> x2 >> y2;
-        return {{static_cast<pos_t>(x1), static_cast<pos_t>(y1)}, {static_cast<pos_t>(x2), static_cast<pos_t>(y2)}, this->GetColor()};
+        StonePos second = RequestMove(board, first);
+        return {first, second, this->GetColor()};
     }
-    return {{static_cast<pos_t>(x1), static_cast<pos_t>(y1)}, this->GetColor()};
+    return {first, this->GetColor()};
 }
 HumanPlayer::HumanPlayer(const std::string &name, std::shared_ptr<InfoLogger> logger) : Player(name, std::move(logger)) {}
