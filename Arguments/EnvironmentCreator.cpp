@@ -2,7 +2,6 @@
 #include "../Interface/ConsoleLogger.h"
 
 #include <stdexcept>
-#include <format>
 
 #include "Environments/DqnTrainEnv.h"
 #include "Environments/PlayEnv.h"
@@ -64,6 +63,7 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
 {
     try
     {
+        SetLogger();
         std::string env = "play";
         args.TryGetT("mode", env);
         if (env == "play")

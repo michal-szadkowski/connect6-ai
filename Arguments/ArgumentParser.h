@@ -11,8 +11,19 @@ private:
     void Add(std::vector<std::string_view>::const_iterator it);
 
 public:
+    /**
+     * Creates parser with raw program arguments
+     */
     ArgumentParser(int argc, const char** argv);
 
+
+    /**
+     * Reads argument by name
+     * @tparam T Return type of argument
+     * @param name Name of argument
+     * @param out Argument value to write to, if there is no argument or parsing error occurs it is left unchanged
+     * @return Whteather argument was read correctyl
+     */
     template <typename T>
     bool TryGetT(const std::string& name, T& out) const;
 };

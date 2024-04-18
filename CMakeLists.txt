@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 23)
 add_executable(connect6_ai main.cpp
         Game/Board.cpp
         Game/Board.h
-        Game/Move.cpp
         Game/Move.h
         Players/Player.cpp
         Players/Player.h

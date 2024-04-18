@@ -12,24 +12,62 @@
 #include "../Players/RandomPlayer.h"
 #include "Environments/Environment.h"
 
+
+/**
+ * Reads program arguments and creates exectution environment
+ */
 class EnvironmentCreator
 {
     ArgumentParser args;
     std::shared_ptr<InfoLogger> infoLogger;
     std::shared_ptr<GameLogger> gameLogger;
 
-public:
-    EnvironmentCreator(ArgumentParser& args) : args(std::move(args)) {}
 
-    void SetLogger();
+    /**
+     * Creates player with type from arguments
+     * @param name p1 or p2
+     * @return Created player
+     */
     std::shared_ptr<Player> GetPlayer(const std::string& name);
+    /**
+     * Creates mcts player
+     */
     std::shared_ptr<MctsPlayer> GetMctsPlayer(const std::string& name);
+    /**
+     * Creates dqn player
+     */
     std::shared_ptr<DqnPlayer> GetDqnPlayer(const std::string& name);
 
+    /**
+     * Creates playing environment with players specified by arguments
+     */
     std::shared_ptr<Environment> CreatePlayEnv();
+    /**
+     * Creates training environments with input model, checkpoints and save model and iterations
+     */
     std::shared_ptr<Environment> CreateTrainEnv();
+
+    /**
+     * Reads logger parameters and creates loggers
+     */
+    void SetLogger();
+
+public:
+    /**
+     * Creates creator with given arguments
+     */
+    EnvironmentCreator(ArgumentParser& args) : args(std::move(args)) {}
+
+
+    /**
+     * Creates environment specified by arguments
+     */
     std::shared_ptr<Environment> Create();
 
+
+    /**
+     * Prints usage of program
+     */
     void PrintUsage();
 };
 

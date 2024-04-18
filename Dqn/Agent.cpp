@@ -1,34 +1,40 @@
 #include "Agent.h"
-#include "../Random.h"
 #include <torch/torch.h>
+#include "../Random.h"
 
-std::ostream& prt(const torch::Tensor& foo)
+std::ostream &prt(const torch::Tensor &foo)
 {
     std::cout << foo << "\n";
     return std::cout;
 }
 
-void Agent::CloneModel(torch::nn::Module& model, const torch::nn::Module& target_model)
+void Agent::CloneModel(torch::nn::Module &model, const torch::nn::Module &target_model)
 {
     torch::NoGradGuard noGradGuard;
     auto new_params = target_model.named_parameters();
     auto params = model.named_parameters(true);
     auto buffers = model.named_buffers(true);
-    for (auto& val : new_params)
+    for (auto &val : new_params)
     {
         auto name = val.key();
-        auto* t = params.find(name);
-        if (t != nullptr) { t->copy_(val.value()); }
+        auto *t = params.find(name);
+        if (t != nullptr)
+        {
+            t->copy_(val.value());
+        }
         else
         {
             t = buffers.find(name);
-            if (t != nullptr) { t->copy_(val.value()); }
+            if (t != nullptr)
+            {
+                t->copy_(val.value());
+            }
         }
     }
 }
 
 
-Agent::Agent(const Agent& agent): memory(agent.memory), device(torch::Device(agent.device.type()))
+Agent::Agent(const Agent &agent) : memory(agent.memory), device(torch::Device(agent.device.type()))
 {
     net = NNet();
     CloneModel(*net, *(agent.net));
@@ -42,7 +48,7 @@ void Agent::ToDevice(torch::Device device)
     this->net->to(device);
 }
 
-std::pair<StonePos, double> Agent::GetMove(const Board& board, bool stochastic)
+std::pair<StonePos, double> Agent::GetMove(const Board &board, bool stochastic)
 {
     StonePos pos;
 
@@ -59,7 +65,7 @@ std::pair<StonePos, double> Agent::GetMove(const Board& board, bool stochastic)
         p = p / p.max();
         auto r = 1 - Random::RandomDouble();
         posId = searchsorted(p, r, false, true).item<int>();
-        while (t1[0][0][posId / 19][posId % 19].item<int>() != 0)
+        while (posId >= 19 * 19 || t1[0][0][posId / 19][posId % 19].item<int>() != 0)
         {
             posId++;
             posId = posId % (19 * 19);
@@ -111,7 +117,10 @@ double Agent::Train(int batches)
 
         for (int j = 0; j < sampleSize; j++)
         {
-            if (sample[j].reward != 0) { target[j][sample[j].action.first][sample[j].action.second] = sample[j].reward; }
+            if (sample[j].reward != 0)
+            {
+                target[j][sample[j].action.first][sample[j].action.second] = sample[j].reward;
+            }
             else
             {
                 auto max = 0.99 * torch::max(q2[j]);
@@ -130,7 +139,7 @@ double Agent::Train(int batches)
     return lossTotal / batches;
 }
 
-torch::Tensor Agent::Board2Tensor(const Board& board)
+torch::Tensor Agent::Board2Tensor(const Board &board)
 {
     auto t = torch::zeros({2, BOARD_SIZE, BOARD_SIZE});
     Color c = board.GetTurn();
@@ -144,23 +153,24 @@ torch::Tensor Agent::Board2Tensor(const Board& board)
                 t[0][i][j] = -1;
         }
     }
-    t[1] = !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE,BOARD_SIZE}) : torch::zeros({BOARD_SIZE,BOARD_SIZE});
+    t[1] = !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}) : torch::zeros({BOARD_SIZE, BOARD_SIZE});
 
     return t;
 }
 
-void Agent::Save(const std::string& path) { torch::save(net, path); }
+void Agent::Save(const std::string &path) { torch::save(net, path); }
 
-void Agent::Load(const std::string& path)
+void Agent::Load(const std::string &path)
 {
     torch::load(net, path);
     net->to(device);
 }
 
-void Agent::AddExperience(const Board& start, const StonePos& pos, const Board& result)
+void Agent::AddExperience(const Board &start, const StonePos &pos, const Board &result)
 {
-    memory->AddExperience({
-        Agent::Board2Tensor(start), {pos.GetX(), pos.GetY()}, result.GetResult() != Color::None ? 1.0 : 0,
-        result.GetTurn() != start.GetTurn(), Agent::Board2Tensor(result)
-    });
+    memory->AddExperience({Agent::Board2Tensor(start),
+                           {pos.GetX(), pos.GetY()},
+                           result.GetResult() != Color::None ? 1.0 : 0,
+                           result.GetTurn() != start.GetTurn(),
+                           Agent::Board2Tensor(result)});
 }

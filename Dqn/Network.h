@@ -3,38 +3,36 @@
 
 #include <torch/nn.h>
 
+/**
+ * Definition of libtorch based network
+ */
 struct NNetImpl : torch::nn::Module
 {
-    NNetImpl()
-    {
-        register_module("layer1", layer1);
-        register_module("layer2", layer2);
-        register_module("layer3", layer3);
-        register_module("fc", fc);
-        register_module("fc2", fc2);
-    }
+    /**
+     * Registers submodules of network
+     */
+    NNetImpl();
 
-    torch::Tensor forward(torch::Tensor x)
-    {
-        x = layer1->forward(x);
-        x = layer2->forward(x);
-        x = layer3->forward(x);
-        x = x.view({-1, 1600});
-        x = fc->forward(x);
-        x = torch::nn::Tanh()->forward(x);
-        x = fc2->forward(x);
-        x = torch::nn::Tanh()->forward(x);
-        return x.view({-1, 19, 19});
-    }
+    /**
+     * Propagates input tensor
+     * @param x 4D tensor where 1st dim is sample, 2nd dim is channel, last 2 dim are board
+     * @return 3D policy evaluation where 1st dim is sample
+     */
+    torch::Tensor forward(torch::Tensor x);
 
     torch::nn::Sequential layer1{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 64, 6).stride(1).padding(3)), torch::nn::LeakyReLU(), torch::nn::BatchNorm2d(64),
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 64, 6).stride(1).padding(3)),
+        torch::nn::LeakyReLU(),
+        torch::nn::BatchNorm2d(64),
     };
-    torch::nn::Sequential layer2{torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).stride(1).padding(1)), torch::nn::LeakyReLU(),};
+    torch::nn::Sequential layer2{
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).stride(1).padding(1)),
+        torch::nn::LeakyReLU(),
+    };
 
     torch::nn::Sequential layer3{
         torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 4, 3).stride(1).padding(1)), torch::nn::LeakyReLU()
-        //torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
+        // torch::nn::MaxPool2d(torch::nn::MaxPool2dOptions(2).stride(2))
     };
 
 
@@ -44,4 +42,4 @@ struct NNetImpl : torch::nn::Module
 
 TORCH_MODULE(NNet);
 
-#endif //CONNECT6_AI_NETWORK_H
+#endif // CONNECT6_AI_NETWORK_H
