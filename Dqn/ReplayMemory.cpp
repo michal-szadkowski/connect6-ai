@@ -1,7 +1,7 @@
-#include <algorithm>
 #include "ReplayMemory.h"
-#include "../Random.h"
+#include <algorithm>
 #include <stdexcept>
+#include "../Random.h"
 
 
 std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
@@ -12,41 +12,45 @@ std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
     if (experiences.empty())
         throw std::logic_error("no experiences to sample from");
     std::ranges::sample(experiences, std::back_insert_iterator(result), sampleSize, Random::GetGen());
-    for (int i = 0; i < sampleSize; i++) { result[i] = Randomize(result[i]); }
+    for (int i = 0; i < sampleSize; i++)
+    {
+        result[i] = Randomize(result[i]);
+    }
     return result;
 }
 
-void ReplayMemory::AddExperience(const Experience& exp)
+void ReplayMemory::AddExperience(const Experience &exp)
 {
     if (maxSize == 0)
         return;
     std::lock_guard<std::mutex> lock{expmutex};
-    while (experiences.size() >= maxSize)
+    if (experiences.size() >= maxSize)
     {
         auto delPos = Random::RandomInRange(0, experiences.size());
-        experiences.erase(experiences.begin() + delPos);
+        experiences[delPos] = exp;
     }
     experiences.push_back(exp);
 }
 
-void ReplayMemory::Rotate(torch::Tensor& t) { t = t.rot90(1, {1, 2}); }
+void ReplayMemory::Rotate(torch::Tensor &t) { t = t.rot90(1, {1, 2}); }
 
-void ReplayMemory::Rotate(std::pair<int, int>& p)
+void ReplayMemory::Rotate(std::pair<int, int> &p)
 {
     const auto tmp = p.second;
     p.second = p.first;
     p.first = 18 - tmp;
 }
 
-void ReplayMemory::Flip(torch::Tensor& t) { t = t.flip({1}); }
-void ReplayMemory::Flip(std::pair<int, int>& p) { p.first = 18 - p.first; }
+void ReplayMemory::Flip(torch::Tensor &t) { t = t.flip({1}); }
+void ReplayMemory::Flip(std::pair<int, int> &p) { p.first = 18 - p.first; }
 
-Experience ReplayMemory::Randomize(const Experience& exp)
+Experience ReplayMemory::Randomize(const Experience &exp)
 {
     auto s = exp.start;
     auto a = exp.action;
     auto r = exp.result;
-    int rot = Random::RandomInRange(0, 3);;
+    int rot = Random::RandomInRange(0, 3);
+    ;
     for (int i = 0; i < rot; i++)
     {
         Rotate(s);
