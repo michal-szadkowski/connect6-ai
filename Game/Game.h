@@ -6,9 +6,6 @@
 #include "../Players/Player.h"
 #include "Board.h"
 
-/**
- * Represents game of connect6
- */
 class Game
 {
 private:
@@ -20,44 +17,19 @@ private:
 
     std::vector<std::pair<Board, Move>> history;
 
-    /**
-     * Queries player for move
-     * @param player Player to request move from
-     * @param prevMove Previous move made by opponent of player
-     * @return Move decided by player
-     */
-    Move MakePlayerTurn(Player &player, const Move &prevMove);
-    /**
-     * Checks if the move is legal in current position
-     */
-    bool IsLegal(const Move &move);
+        Move MakePlayerTurn(Player &player, const Move &prevMove);
+        bool IsLegal(const Move &move);
 
-    /**
-     * Makes move on the board
-     */
-    void MakeMove(const Move &move);
+        void MakeMove(const Move &move);
 
 public:
-    /**
-     * Creates game with two players in default position
-     */
-    Game(Player &black, Player &white, std::shared_ptr<GameLogger> logger);
+        Game(Player &black, Player &white, std::shared_ptr<GameLogger> logger);
 
-    /**
-     * Creates game with two players from given position
-     */
-    Game(Player &black, Player &white, const Board &board, std::shared_ptr<GameLogger> logger);
+        Game(Player &black, Player &white, const Board &board, std::shared_ptr<GameLogger> logger);
 
-    /**
-     * @return History of moves made during the game
-     */
-    std::vector<std::pair<Board, Move>> GetHistory() { return history; }
+        std::vector<std::pair<Board, Move>> GetHistory() { return history; }
 
-    /**
-     * Queries both players for moves and makes them on the board until there is no result
-     * @return Winner of the game
-     */
-    Color Play();
+        Color Play();
 };
 
 

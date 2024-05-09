@@ -45,10 +45,10 @@ std::shared_ptr<Environment> EnvironmentCreator::CreateTrainEnv()
     if (out == "")
         throw std::logic_error("No outmodel");
 
-    int mem = 150000;
+    int mem = 400;
     args.TryGetT("memory", mem);
 
-    int it = 50000;
+    int it = 3;
     args.TryGetT("iters", it);
 
     auto env = std::make_shared<DqnTrainEnv>(gameLogger, infoLogger, mem, it);

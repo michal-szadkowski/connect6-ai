@@ -4,18 +4,10 @@
 
 #include <string>
 
-/**
- * Interface for players to write information
- */
 class InfoLogger
 {
 public:
-    /**
-     * Logs iformation from player
-     * @param prefix Name of player, put in square braces
-     * @param info Message to log
-     */
-    virtual void WriteInfo(const std::string &prefix, const std::string &info) = 0;
+        virtual void WriteInfo(const std::string &prefix, const std::string &info) = 0;
     virtual ~InfoLogger() = default;
 };
 

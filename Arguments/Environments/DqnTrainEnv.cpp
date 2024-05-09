@@ -31,8 +31,8 @@ void DqnTrainEnv::Run()
     {
         auto s = std::chrono::high_resolution_clock::now();
 
-        const int games = 125;
-        const int th = 10;
+        const int games = 1;
+        const int th = 1;
         std::cout << "it: " << i << " " << std::flush;
 
         auto results = PlayGames(games, th, true, agentCurrent, agentCurrent);
@@ -40,14 +40,14 @@ void DqnTrainEnv::Run()
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << std::flush;
         s = std::chrono::high_resolution_clock::now();
 
-        auto err = agentCurrent.Train(2000);
+        auto err = agentCurrent.Train(1);
         std::cout << "  " << err << " " << std::flush;
 
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << " "
                   << std::flush;
         s = std::chrono::high_resolution_clock::now();
 
-        const int evalGames = 25;
+        const int evalGames = 1;
         auto eval = PlayGames(evalGames, th, true, agentCurrent, agentPrev);
         PrintResults(eval, evalGames * th);
         if (eval.first > evalGames * th + 4)

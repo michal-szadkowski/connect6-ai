@@ -3,9 +3,6 @@
 #include "ConsoleLogger.h"
 
 
-/**
- * Logger that does not log anything, used in internal simulations
- */
 class NoLogger final : public InfoLogger, public GameLogger
 {
 public:

@@ -3,21 +3,10 @@
 
 #include <torch/nn.h>
 
-/**
- * Definition of libtorch based network
- */
 struct NNetImpl : torch::nn::Module
 {
-    /**
-     * Registers submodules of network
-     */
     NNetImpl();
 
-    /**
-     * Propagates input tensor
-     * @param x 4D tensor where 1st dim is sample, 2nd dim is channel, last 2 dim are board
-     * @return 3D policy evaluation where 1st dim is sample
-     */
     torch::Tensor forward(torch::Tensor x);
 
     torch::nn::Sequential layer1{
