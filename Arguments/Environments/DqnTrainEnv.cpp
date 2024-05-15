@@ -26,42 +26,63 @@ void DqnTrainEnv::Run()
 {
     LoadModel();
     Agent agentPrev(agentCurrent);
-
+    int sameAgentIters = 0;
+    double eps = 0.85;
     for (int i = 0; i < iterations; ++i)
     {
         auto s = std::chrono::high_resolution_clock::now();
 
-        const int games = 1;
-        const int th = 1;
+        const int games = 70;
+        const int th = 10;
         std::cout << "it: " << i << " " << std::flush;
 
-        auto results = PlayGames(games, th, true, agentCurrent, agentCurrent);
+        auto results = PlayGames(games, th, eps, agentCurrent, agentPrev);
         PrintResults(results, games * th);
-        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << std::flush;
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << " e:" << eps
+                  << "\t" << std::flush;
         s = std::chrono::high_resolution_clock::now();
 
-        auto err = agentCurrent.Train(1);
+        auto err = agentCurrent.Train(1000);
         std::cout << "  " << err << " " << std::flush;
 
-        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << " "
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << "\t"
                   << std::flush;
         s = std::chrono::high_resolution_clock::now();
 
-        const int evalGames = 1;
-        auto eval = PlayGames(evalGames, th, true, agentCurrent, agentPrev);
+        const int evalGames = 10;
+        auto eval = PlayGames(evalGames, th, 0.05, agentCurrent, agentPrev);
         PrintResults(eval, evalGames * th);
-        if (eval.first > evalGames * th + 4)
-            agentPrev = Agent(agentCurrent);
-        else if (eval.first < evalGames * th - 4)
-            agentCurrent = Agent(agentPrev);
 
         CheckPointModel(i);
 
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s);
-        std::cout << " " << elapsed;
+        std::cout << " " << elapsed << "\t";
+
+
+        if (eval.first >= (evalGames * th) * 0.54)
+        {
+            agentPrev = Agent(agentCurrent);
+            sameAgentIters = 0;
+            std::cout << "agent advances";
+        }
+        else if (eval.first <= (evalGames * th) * 0.35 || sameAgentIters > 15)
+        {
+            agentCurrent = Agent(agentPrev);
+            sameAgentIters = 0;
+            std::cout << "agent discarded";
+        }
+        else
+        {
+            sameAgentIters++;
+            std::cout << "agent age: " << sameAgentIters;
+        }
+
+        if (i % 5)
+            eps *= 0.99;
+
         std::cout << std::endl;
         if (i % 10 == 9)
-            PlayGameAndPrint(agentCurrent, agentCurrent);
+            PlayGameAndPrint(agentCurrent, agentPrev);
     }
     SaveModel();
 }
@@ -87,21 +108,20 @@ void DqnTrainEnv::SaveModel()
 }
 
 
-std::pair<int, int> DqnTrainEnv::PlayGames(int gamesPerTh, int threads, bool stochastic, Agent &a1, Agent &a2)
+std::pair<int, int> DqnTrainEnv::PlayGames(int gamesPerTh, int threads, double eps, Agent &a1, Agent &a2)
 {
     torch::NoGradGuard noGrad;
     std::pair<int, int> result{0, 0};
     std::vector<std::future<std::pair<int, int>>> paral;
     for (int i = 0; i < threads; i++)
     {
+        auto gameLogger = std::make_shared<NoLogger>();
+        auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, eps);
+        auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, eps);
         paral.push_back(std::async(std::launch::async,
-                                   [&a1, &a2, stochastic, gamesPerTh]()
+                                   [=, gamesPerTh]()
                                    {
-                                       auto gameLogger = std::make_shared<NoLogger>();
-                                       auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, stochastic);
-                                       auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, stochastic);
                                        auto env = PlayEnv(p1, p2, gameLogger, gameLogger, gamesPerTh);
-
                                        return env.PlayGames();
                                    }));
     }
@@ -116,14 +136,14 @@ std::pair<int, int> DqnTrainEnv::PlayGames(int gamesPerTh, int threads, bool sto
 
 void DqnTrainEnv::PrintResults(const std::pair<int, int> &results, const int total)
 {
-    std::cout << results.first << " / " << total - results.first - results.second << " / " << results.second << "\t" << std::flush;
+    std::cout << results.first << " / " << total - results.first - results.second << " / " << results.second << " " << std::flush;
 }
 
 void DqnTrainEnv::PlayGameAndPrint(Agent &a1, Agent &a2)
 {
     auto gameLogger = std::make_shared<NoLogger>();
-    auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, true);
-    auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, true);
+    auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, 0.01);
+    auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, 0.01);
 
     auto game = Game(*p1, *p2, this->gameLogger);
     game.Play();

@@ -20,6 +20,7 @@ void Agent::CloneModel(torch::nn::Module &model, const torch::nn::Module &target
         auto *t = params.find(name);
         if (t != nullptr)
         {
+            // *t = val.value().clone();
             t->copy_(val.value());
         }
         else
@@ -27,6 +28,7 @@ void Agent::CloneModel(torch::nn::Module &model, const torch::nn::Module &target
             t = buffers.find(name);
             if (t != nullptr)
             {
+                // *t = val.value().clone();
                 t->copy_(val.value());
             }
         }
@@ -48,30 +50,52 @@ void Agent::ToDevice(torch::Device device)
     this->net->to(device);
 }
 
-std::pair<StonePos, double> Agent::GetMove(const Board &board, bool stochastic)
+torch::Tensor Agent::EvaluateBoard(const Board &board)
+{
+    torch::Tensor q1;
+
+    int rot = Random::RandomInRange(0, 8);
+
+    auto t1 = Board2Tensor(board).unsqueeze(0).to(device);
+    t1 = t1.rot90(rot / 2, {2, 3});
+    if (rot % 2)
+        t1 = t1.flip({2});
+    q1 = net->forward(t1);
+    q1 = q1 + 1 - t1[0][0].abs() * 3;
+    if (rot % 2)
+        q1 = q1.flip({1});
+    q1 = q1.rot90(4 - (rot / 2), {1, 2});
+
+    return q1;
+}
+
+std::pair<StonePos, double> Agent::GetMove(const Board &board, double stochastic)
 {
     StonePos pos;
 
-    auto t1 = Board2Tensor(board).unsqueeze(0).to(device);
-    auto q1 = net->forward(t1);
-    q1 = q1 + 1 - t1[0][0].abs() * 3;
+    auto q1 = EvaluateBoard(board);
     int posId;
     double c = 0;
-    if (stochastic)
+    if (stochastic > Random::RandomDouble())
     {
-        q1 = q1.squeeze(0).flatten();
-        q1 = q1.clamp(0, 2);
-        auto p = q1.cumsum(0);
-        p = p / p.max();
-        auto r = 1 - Random::RandomDouble();
-        posId = searchsorted(p, r, false, true).item<int>();
-        while (posId >= 19 * 19 || t1[0][0][posId / 19][posId % 19].item<int>() != 0)
-        {
-            posId++;
-            posId = posId % (19 * 19);
-        }
-        c = q1[posId].item<double>();
+        pos = Random::SelectRandomElement(board.GetAllEmpty());
+        return {pos, 0};
     }
+    // if (stochastic)
+    // {
+    //     q1 = q1.squeeze(0).flatten();
+    //     q1 = q1.clamp(0, 2);
+    //     auto p = q1.cumsum(0);
+    //     p = p / p.max();
+    //     auto r = 1 - Random::RandomDouble();
+    //     posId = searchsorted(p, r, false, true).item<int>();
+    //     while (posId >= 19 * 19 || t1[0][0][posId / 19][posId % 19].item<int>() != 0)
+    //     {
+    //         posId++;
+    //         posId = posId % (19 * 19);
+    //     }
+    //     c = q1[posId].item<double>();
+    // }
     else
     {
         posId = q1.argmax().item<int>();
@@ -88,7 +112,6 @@ double Agent::Train(int batches)
     const int sampleSize = 256;
     NNet net2;
     net2->to(device);
-    // net->to(device);
     for (int i = 0; i < batches; ++i)
     {
         if (i % 500 == 0)
@@ -109,10 +132,12 @@ double Agent::Train(int batches)
         auto q1 = net->forward(start);
         auto target = q1.clone();
 
+        torch::Tensor q2p;
         torch::Tensor q2;
         {
             torch::NoGradGuard noGrad;
-            q2 = net2->forward(result);
+            q2p = net2->forward(result);
+            q2 = net->forward(result);
         }
 
         for (int j = 0; j < sampleSize; j++)
@@ -123,7 +148,8 @@ double Agent::Train(int batches)
             }
             else
             {
-                auto max = 0.99 * torch::max(q2[j]);
+                auto argmax = q2p[j].argmax();
+                auto max = 0.999 * q2[j].take(argmax).item<double>(); // q2[j][argmax / 19][argmax % 19];
                 if (sample[j].switchTurns)
                     max = -max;
                 target[j][sample[j].action.first][sample[j].action.second] = max;

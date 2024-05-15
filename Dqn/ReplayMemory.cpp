@@ -29,7 +29,8 @@ void ReplayMemory::AddExperience(const Experience &exp)
         auto delPos = Random::RandomInRange(0, experiences.size());
         experiences[delPos] = exp;
     }
-    experiences.push_back(exp);
+    else
+        experiences.push_back(exp);
 }
 
 void ReplayMemory::Rotate(torch::Tensor &t) { t = t.rot90(1, {1, 2}); }
@@ -49,7 +50,7 @@ Experience ReplayMemory::Randomize(const Experience &exp)
     auto s = exp.start;
     auto a = exp.action;
     auto r = exp.result;
-    int rot = Random::RandomInRange(0, 3);
+    int rot = Random::RandomInRange(0, 4);
 
     for (int i = 0; i < rot; i++)
     {
@@ -57,12 +58,12 @@ Experience ReplayMemory::Randomize(const Experience &exp)
         Rotate(a);
         Rotate(r);
     }
-    if (Random::RandomInRange(0, 1))
-    {
-        Flip(s);
-        Flip(a);
-        Flip(r);
-    }
+    // if (Random::RandomInRange(0, 1))
+    // {
+    //     Flip(s);
+    //     Flip(a);
+    //     Flip(r);
+    // }
     // rot = Random::RandomInRange(0, 3);
     // for (int i = 0; i < rot; i++) {
     //

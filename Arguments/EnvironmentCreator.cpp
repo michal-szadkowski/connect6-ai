@@ -1,8 +1,9 @@
 #include "EnvironmentCreator.h"
-#include "../Interface/ConsoleLogger.h"
 
 #include <stdexcept>
 
+#include "../Interface/ConsoleLogger.h"
+#include "../Players/RandomPlayer.h"
 #include "Environments/DqnTrainEnv.h"
 #include "Environments/PlayEnv.h"
 
@@ -45,10 +46,10 @@ std::shared_ptr<Environment> EnvironmentCreator::CreateTrainEnv()
     if (out == "")
         throw std::logic_error("No outmodel");
 
-    int mem = 400;
+    int mem = 2000000;
     args.TryGetT("memory", mem);
 
-    int it = 3;
+    int it = 100000;
     args.TryGetT("iters", it);
 
     auto env = std::make_shared<DqnTrainEnv>(gameLogger, infoLogger, mem, it);

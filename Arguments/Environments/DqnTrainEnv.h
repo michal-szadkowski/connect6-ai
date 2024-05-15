@@ -20,7 +20,7 @@ class DqnTrainEnv final : public Environment
     void CheckPointModel(int i);
 
     void SaveModel();
-    std::pair<int, int> PlayGames(int gamesPerTh, int threads, bool stochastic, Agent &a1, Agent &a2);
+    std::pair<int, int> PlayGames(int gamesPerTh, int threads, double eps, Agent &a1, Agent &a2);
     void PrintResults(const std::pair<int, int> &results, int total);
     void PlayGameAndPrint(Agent &a1, Agent &a2);
 

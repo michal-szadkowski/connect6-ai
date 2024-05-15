@@ -44,7 +44,6 @@ add_executable(connect6_ai main.cpp
         Dqn/Agent.h
         Dqn/ReplayMemory.cpp
         Dqn/ReplayMemory.h
-        Dqn/Network.cpp
         Dqn/Network.h
         Arguments/Environments/Environment.h
         Arguments/Environments/PlayEnv.cpp

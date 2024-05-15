@@ -16,25 +16,26 @@ struct Experience
     torch::Tensor result;
 
     Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool switchTurns, torch::Tensor result) :
-        start(start.clone()), action(action), reward(reward), switchTurns(switchTurns), result(result.clone())
+        start(std::move(start)), action(action), reward(reward), switchTurns(switchTurns), result(std::move(result))
     {}
 };
 
 class ReplayMemory
 {
 private:
-    std::vector<Experience> experiences;
     std::mutex expmutex;
     int maxSize;
 
+    static Experience Randomize(const Experience &exp);
+
+public:
     static void Rotate(torch::Tensor &t);
     static void Rotate(std::pair<int, int> &p);
     static void Flip(torch::Tensor &t);
     static void Flip(std::pair<int, int> &p);
-    static Experience Randomize(const Experience &exp);
+    std::vector<Experience> experiences;
 
-public:
-    ReplayMemory(int maxSize) : maxSize(maxSize) {}
+    ReplayMemory(int maxSize) : maxSize(maxSize) { experiences.reserve(maxSize); }
     std::vector<Experience> GetRandomSample(int sampleSize);
     void AddExperience(const Experience &exp);
 };

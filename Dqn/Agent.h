@@ -9,29 +9,33 @@
 class Agent
 {
 private:
-    std::shared_ptr<ReplayMemory> memory;
-
     NNet net;
     torch::Device device{torch::kCPU};
     std::shared_ptr<torch::optim::Optimizer> optimizer;
 
     static torch::Tensor Board2Tensor(const Board &board);
 
-    void CloneModel(torch::nn::Module &model, const torch::nn::Module &target_model);
 
 public:
+    static void CloneModel(torch::nn::Module &model, const torch::nn::Module &target_model);
+    std::shared_ptr<ReplayMemory> memory;
+
+
     Agent(int memSize)
     {
         memory = std::make_shared<ReplayMemory>(memSize);
+
         net = NNet();
         net->to(device);
-        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(0.001).weight_decay(1e-6));
+        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(),
+                                                            torch::optim::RMSpropOptions(0.005).weight_decay(0.001).momentum(0.9));
     }
 
     Agent(const Agent &agent);
     void ToDevice(torch::Device device);
+    torch::Tensor EvaluateBoard(const Board &board);
 
-    std::pair<StonePos, double> GetMove(const Board &board, bool stochastic = false);
+    std::pair<StonePos, double> GetMove(const Board &board, double stochastic = 0);
     double Train(int batches);
 
     void Save(const std::string &path);

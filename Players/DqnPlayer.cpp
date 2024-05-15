@@ -20,7 +20,7 @@ Move DqnPlayer::GetMove(const Board &board, const Move &prevMove)
 
 StonePos DqnPlayer::GetPositionFromBoard(const Board &board)
 {
-    auto [result2, c] = agent.GetMove(board, stochastic);
+    auto [result2, c] = agent.GetMove(board, eps);
     accWin += c;
     moveCnt++;
 

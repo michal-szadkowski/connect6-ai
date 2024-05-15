@@ -29,7 +29,7 @@ class EnvironmentCreator
 public:
     EnvironmentCreator(ArgumentParser &args) : args(std::move(args)) {}
     std::shared_ptr<Environment> Create();
-    void PrintUsage();
+    static void PrintUsage();
 };
 
 
