@@ -56,12 +56,12 @@ torch::Tensor Agent::EvaluateBoard(const Board &board)
 
     int rot = Random::RandomInRange(0, 8);
 
-    auto t1 = Board2Tensor(board).unsqueeze(0).to(device);
+    auto t1 = Board2Tensor(board).unsqueeze(0).to(device, torch::kF32);
     t1 = t1.rot90(rot / 2, {2, 3});
     if (rot % 2)
         t1 = t1.flip({2});
     q1 = net->forward(t1);
-    q1 = q1 + 1 - t1[0][0].abs() * 3;
+    q1 = q1 + 1 - t1[0][0].abs() * 4;
     if (rot % 2)
         q1 = q1.flip({1});
     q1 = q1.rot90(4 - (rot / 2), {1, 2});
@@ -69,18 +69,19 @@ torch::Tensor Agent::EvaluateBoard(const Board &board)
     return q1;
 }
 
-std::pair<StonePos, double> Agent::GetMove(const Board &board, double stochastic)
+std::pair<StonePos, double> Agent::GetMove(const Board &board, double eps)
 {
     StonePos pos;
 
-    auto q1 = EvaluateBoard(board);
+    auto q = EvaluateBoard(board);
+    auto r = torch::normal(0, eps * 0.1, {19, 19}).clamp(-1, 1).to(device);
     int posId;
     double c = 0;
-    if (stochastic > Random::RandomDouble())
-    {
-        pos = Random::SelectRandomElement(board.GetAllEmpty());
-        return {pos, 0};
-    }
+    // if (eps > Random::RandomDouble())
+    // {
+    //     pos = Random::SelectRandomElement(board.GetAllEmpty());
+    //     return {pos, 0};
+    // }
     // if (stochastic)
     // {
     //     q1 = q1.squeeze(0).flatten();
@@ -96,11 +97,11 @@ std::pair<StonePos, double> Agent::GetMove(const Board &board, double stochastic
     //     }
     //     c = q1[posId].item<double>();
     // }
-    else
-    {
-        posId = q1.argmax().item<int>();
-        c = q1[0][pos.GetX()][pos.GetY()].item<double>();
-    }
+    // else
+    auto eval = q + r;
+
+    posId = eval.argmax().item<int>();
+    c = q[0][pos.GetX()][pos.GetY()].item<double>();
     pos = StonePos(posId / 19, posId % 19);
     return {pos, c};
 }
@@ -114,7 +115,7 @@ double Agent::Train(int batches)
     net2->to(device);
     for (int i = 0; i < batches; ++i)
     {
-        if (i % 500 == 0)
+        if (i % 250 == 0)
             CloneModel(*net2, *net);
         auto sample = memory->GetRandomSample(sampleSize);
         optimizer->zero_grad();
@@ -126,18 +127,20 @@ double Agent::Train(int batches)
             start[j] = sample[j].start;
             result[j] = sample[j].result;
         }
-        start = start.to(device);
-        result = result.to(device);
+
+        start = start.to(device, torch::kF32);
+        result = result.to(device, torch::kF32);
 
         auto q1 = net->forward(start);
         auto target = q1.clone();
 
-        torch::Tensor q2p;
         torch::Tensor q2;
+        torch::Tensor q2p;
+
         {
             torch::NoGradGuard noGrad;
-            q2p = net2->forward(result);
             q2 = net->forward(result);
+            q2p = net2->forward(result);
         }
 
         for (int j = 0; j < sampleSize; j++)
@@ -149,7 +152,7 @@ double Agent::Train(int batches)
             else
             {
                 auto argmax = q2p[j].argmax();
-                auto max = 0.999 * q2[j].take(argmax).item<double>(); // q2[j][argmax / 19][argmax % 19];
+                auto max = 0.99 * q2[j].take(argmax).item<double>();
                 if (sample[j].switchTurns)
                     max = -max;
                 target[j][sample[j].action.first][sample[j].action.second] = max;
@@ -167,7 +170,7 @@ double Agent::Train(int batches)
 
 torch::Tensor Agent::Board2Tensor(const Board &board)
 {
-    auto t = torch::zeros({2, BOARD_SIZE, BOARD_SIZE});
+    auto t = torch::zeros({2, BOARD_SIZE, BOARD_SIZE}, torch::kI8);
     Color c = board.GetTurn();
     for (pos_t i = 0; i < BOARD_SIZE; ++i)
     {
@@ -179,7 +182,7 @@ torch::Tensor Agent::Board2Tensor(const Board &board)
                 t[0][i][j] = -1;
         }
     }
-    t[1] = !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}) : torch::zeros({BOARD_SIZE, BOARD_SIZE});
+    t[1] = !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8) : torch::zeros({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
 
     return t;
 }

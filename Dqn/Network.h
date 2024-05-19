@@ -21,7 +21,7 @@ struct NNetImpl : torch::nn::Module
         x = layer2->forward(x);
         x = layer3->forward(x);
         x = layer5->forward(x);
-        x = x.view({-1, 800});
+        x = x.view({-1, 1600});
         x = fc->forward(x);
         x = torch::nn::Tanh()->forward(x);
         x = fc2->forward(x);
@@ -30,22 +30,25 @@ struct NNetImpl : torch::nn::Module
     }
 
     torch::nn::Sequential layer1{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 96, 6).padding(3)),
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(2, 64, 6).padding(3)),
         torch::nn::LeakyReLU(),
     };
     torch::nn::Sequential layer2{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(96, 64, 3).padding(1)),
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).padding(1)),
         torch::nn::LeakyReLU(),
     };
     torch::nn::Sequential layer3{
-        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).stride(1).padding(1)),
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, 3).padding(1)),
         torch::nn::LeakyReLU(),
     };
-    torch::nn::Sequential layer5{torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 2, 1)), torch::nn::LeakyReLU()};
+    torch::nn::Sequential layer5{
+        torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 4, 1)),
+        torch::nn::LeakyReLU(),
+    };
 
 
-    torch::nn::Linear fc{800, 800};
-    torch::nn::Linear fc2{800, 19 * 19};
+    torch::nn::Linear fc{1600, 722};
+    torch::nn::Linear fc2{722, 19 * 19};
 };
 
 TORCH_MODULE(NNet);
