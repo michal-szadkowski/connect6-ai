@@ -109,6 +109,7 @@ std::pair<StonePos, double> Agent::GetMove(const Board &board, double eps)
 
 double Agent::Train(int batches)
 {
+    memory->RebuildWeights();
     double lossTotal = 0;
     const int sampleSize = 256;
     NNet net2;
@@ -117,7 +118,7 @@ double Agent::Train(int batches)
     {
         if (i % 250 == 0)
             CloneModel(*net2, *net);
-        auto sample = memory->GetRandomSample(sampleSize);
+        auto sample = memory->GetWeightedSample(sampleSize);
         optimizer->zero_grad();
         torch::Tensor start = torch::zeros({sampleSize, 2, 19, 19});
         torch::Tensor result = torch::zeros({sampleSize, 2, 19, 19});
@@ -145,8 +146,10 @@ double Agent::Train(int batches)
 
         for (int j = 0; j < sampleSize; j++)
         {
+            double dif = 0;
             if (sample[j].reward != 0)
             {
+                dif = (target[j][sample[j].action.first][sample[j].action.second] - sample[j].reward).item<double>();
                 target[j][sample[j].action.first][sample[j].action.second] = sample[j].reward;
             }
             else
@@ -155,8 +158,10 @@ double Agent::Train(int batches)
                 auto max = 0.99 * q2[j].take(argmax).item<double>();
                 if (sample[j].switchTurns)
                     max = -max;
+                dif = target[j][sample[j].action.first][sample[j].action.second].item<double>() - max;
                 target[j][sample[j].action.first][sample[j].action.second] = max;
             }
+            memory->UpdateWeight(sample[j].idx, dif * dif);
         }
 
         auto crit = torch::nn::MSELoss();
@@ -182,7 +187,8 @@ torch::Tensor Agent::Board2Tensor(const Board &board)
                 t[0][i][j] = -1;
         }
     }
-    t[1] = !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8) : torch::zeros({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
+    t[1] =
+        !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8) : torch::zeros({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
 
     return t;
 }

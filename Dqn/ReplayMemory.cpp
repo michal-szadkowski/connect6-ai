@@ -18,6 +18,22 @@ std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
     }
     return result;
 }
+std::vector<Experience> ReplayMemory::GetWeightedSample(int sampleSize)
+{
+    std::vector<Experience> result(sampleSize);
+    if (sampleSize == 0)
+        return result;
+    if (sampleSize > experiences.size())
+        throw std::logic_error("not enough experiences to sample from");
+    for (int i = 0; i < sampleSize; i++)
+    {
+        int idx = distr(Random::GetGen());
+        result[i] = Randomize(experiences[idx]);
+        result[i].idx = idx;
+    }
+    return result;
+}
+void ReplayMemory::RebuildWeights() { distr = std::discrete_distribution<int>(weights.begin(), weights.end()); }
 
 void ReplayMemory::AddExperience(const Experience &exp)
 {
@@ -28,10 +44,18 @@ void ReplayMemory::AddExperience(const Experience &exp)
     {
         auto delPos = Random::RandomInRange(0, experiences.size());
         experiences[delPos] = exp;
+        experiences[delPos].idx = delPos;
+        weights[delPos] = 1;
     }
     else
+    {
         experiences.push_back(exp);
+        experiences[experiences.size() - 1].idx = experiences.size() - 1;
+        weights.push_back(1);
+    }
 }
+void ReplayMemory::UpdateWeight(int idx, double newWeight) { weights[idx] = newWeight; }
+
 
 void ReplayMemory::Rotate(torch::Tensor &t) { t = t.rot90(1, {1, 2}); }
 
@@ -58,18 +82,5 @@ Experience ReplayMemory::Randomize(const Experience &exp)
         Rotate(a);
         Rotate(r);
     }
-    // if (Random::RandomInRange(0, 1))
-    // {
-    //     Flip(s);
-    //     Flip(a);
-    //     Flip(r);
-    // }
-    // rot = Random::RandomInRange(0, 3);
-    // for (int i = 0; i < rot; i++) {
-    //
-    // }
-    // if (Random::RandomInRange(0, 1)) {
-    // }
-
     return {s, a, exp.reward, exp.switchTurns, r};
 }

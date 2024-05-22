@@ -42,7 +42,7 @@ void DqnTrainEnv::Run()
                   << "\t" << std::flush;
         s = std::chrono::high_resolution_clock::now();
 
-        auto err = agentCurrent.Train(1000);
+        auto err = agentCurrent.Train(1500);
         std::cout << "  " << err << " " << std::flush;
 
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << "\t"
