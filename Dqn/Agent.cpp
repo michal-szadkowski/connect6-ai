@@ -109,16 +109,16 @@ std::pair<StonePos, double> Agent::GetMove(const Board &board, double eps)
 
 double Agent::Train(int batches)
 {
-    memory->RebuildWeights();
+    // memory->RebuildWeights();
     double lossTotal = 0;
     const int sampleSize = 256;
     NNet net2;
     net2->to(device);
     for (int i = 0; i < batches; ++i)
     {
-        if (i % 250 == 0)
+        if (i % 50 == 0)
             CloneModel(*net2, *net);
-        auto sample = memory->GetWeightedSample(sampleSize);
+        auto sample = memory->GetRandomSample(sampleSize);
         optimizer->zero_grad();
         torch::Tensor start = torch::zeros({sampleSize, 2, 19, 19});
         torch::Tensor result = torch::zeros({sampleSize, 2, 19, 19});
@@ -132,37 +132,32 @@ double Agent::Train(int batches)
         start = start.to(device, torch::kF32);
         result = result.to(device, torch::kF32);
 
-        auto q1 = net->forward(start);
-        auto target = q1.clone();
+        auto q1 = net->forward(start).flatten(1, 2);
 
         torch::Tensor q2;
         torch::Tensor q2p;
-
         {
             torch::NoGradGuard noGrad;
-            q2 = net->forward(result);
-            q2p = net2->forward(result);
+            q2 = net->forward(result).flatten(1, 2);
+            q2p = net2->forward(result).flatten(1, 2);
         }
 
+        torch::Tensor actions = torch::zeros({sampleSize}, torch::kInt32);
         for (int j = 0; j < sampleSize; j++)
         {
-            double dif = 0;
-            if (sample[j].reward != 0)
-            {
-                dif = (target[j][sample[j].action.first][sample[j].action.second] - sample[j].reward).item<double>();
-                target[j][sample[j].action.first][sample[j].action.second] = sample[j].reward;
-            }
-            else
-            {
-                auto argmax = q2p[j].argmax();
-                auto max = 0.99 * q2[j].take(argmax).item<double>();
-                if (sample[j].switchTurns)
-                    max = -max;
-                dif = target[j][sample[j].action.first][sample[j].action.second].item<double>() - max;
-                target[j][sample[j].action.first][sample[j].action.second] = max;
-            }
-            memory->UpdateWeight(sample[j].idx, dif * dif);
+            actions[j] = sample[j].action.first * 19 + sample[j].action.second;
         }
+
+        auto target = q1.clone();
+        auto argmax = q2p.argmax(1);
+        auto maxval = q2.index({torch::arange(sampleSize), argmax}) * 0.99;
+        for (int j = 0; j < sampleSize; j++)
+        {
+            if (sample[j].reward != 0)
+                maxval[j] = sample[j].reward;
+        }
+
+        target.index_put_({torch::arange(sampleSize), actions}, maxval);
 
         auto crit = torch::nn::MSELoss();
         auto loss = crit(q1, target);

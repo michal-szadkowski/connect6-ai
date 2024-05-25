@@ -43,10 +43,7 @@ public:
 
     ReplayMemory(int maxSize) : maxSize(maxSize) { experiences.reserve(maxSize); }
     std::vector<Experience> GetRandomSample(int sampleSize);
-    std::vector<Experience> GetWeightedSample(int sampleSize);
-    void RebuildWeights();
     void AddExperience(const Experience &exp);
-    void UpdateWeight(int idx, double newWeight);
 };
 
 

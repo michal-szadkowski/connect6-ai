@@ -27,7 +27,7 @@ void DqnTrainEnv::Run()
     LoadModel();
     Agent agentPrev(agentCurrent);
     int sameAgentIters = 0;
-    double eps = 0.85;
+    double eps = 0.4;
     for (int i = 0; i < iterations; ++i)
     {
         auto s = std::chrono::high_resolution_clock::now();
@@ -77,8 +77,8 @@ void DqnTrainEnv::Run()
             std::cout << "agent age: " << sameAgentIters;
         }
 
-        if (i % 3 == 0)
-            eps *= 0.99;
+        // if (i % 3 == 0)
+        eps *= 0.99;
 
         std::cout << std::endl;
 
