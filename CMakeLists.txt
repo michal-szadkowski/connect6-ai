@@ -53,6 +53,9 @@ add_executable(connect6_ai main.cpp
         Interface/NoLogger.h
         Interface/FileLogger.cpp
         Interface/FileLogger.h
+        Dqn/FusedMBConv.h
+        Dqn/FusedMBConv.h
+        Dqn/MBConv.h
 )
 target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
 target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})

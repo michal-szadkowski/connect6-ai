@@ -14,12 +14,12 @@ struct Experience
     torch::Tensor start;
     std::pair<int, int> action;
     double reward = 0;
-    bool switchTurns = false;
+    bool neg = false;
     torch::Tensor result;
 
     Experience() = default;
-    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool switchTurns, torch::Tensor result) :
-        start(std::move(start)), action(action), reward(reward), switchTurns(switchTurns), result(std::move(result))
+    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool neg, torch::Tensor result) :
+        start(std::move(start)), action(action), reward(reward), neg(neg), result(std::move(result))
     {}
 };
 

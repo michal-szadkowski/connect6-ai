@@ -20,8 +20,10 @@ play parameters:
     p<1,2>-dqn-inmodel=
     log=con(default),file
 train parameters:
+    eps=0.8 (default)
+    eps-decay=0.99 (default)
     memory=150000 (default)
-    iters=400000 (default)
+    iters=1000 (default)
     inmodel=
     checkPt= 
     outmodel=
@@ -43,16 +45,21 @@ std::shared_ptr<Environment> EnvironmentCreator::CreateTrainEnv()
     args.TryGetT("inmodel", in);
     args.TryGetT("checkPt", checkPt);
     args.TryGetT("outmodel", out);
+    double eps = 0.8;
+    args.TryGetT("eps", eps);
+    double epsDecay = 0.99;
+    args.TryGetT("eps-decay", epsDecay);
+
     if (out == "")
         throw std::logic_error("No outmodel");
 
-    int mem = 2000000;
+    int mem = 150000;
     args.TryGetT("memory", mem);
 
-    int it = 100000;
+    int it = 1000;
     args.TryGetT("iters", it);
 
-    auto env = std::make_shared<DqnTrainEnv>(gameLogger, infoLogger, mem, it);
+    auto env = std::make_shared<DqnTrainEnv>(gameLogger, infoLogger, mem, it, eps, epsDecay);
 
     env->SetLoad(in);
     env->SetCheckpointDir(checkPt);

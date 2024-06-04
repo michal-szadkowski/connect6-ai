@@ -7,12 +7,26 @@
 #include "../../Interface/InfoLogger.h"
 #include "Environment.h"
 
+struct PlayGamesResult
+{
+    int p1 = 0;
+    int p2 = 0;
+    int all = 0;
+    double p1AccWin = 0;
+    double p2AccWin = 0;
+};
+
+
 class DqnTrainEnv final : public Environment
 {
     std::shared_ptr<GameLogger> gameLogger{};
     std::shared_ptr<InfoLogger> infoLogger{};
+
     Agent agentCurrent;
     int iterations;
+
+    double eps;
+    double epsDecay;
 
     std::string load, checkpoint, save;
 
@@ -20,12 +34,13 @@ class DqnTrainEnv final : public Environment
     void CheckPointModel(int i);
 
     void SaveModel();
-    std::pair<int, int> PlayGames(int gamesPerTh, int threads, double eps, Agent &a1, Agent &a2);
-    void PrintResults(const std::pair<int, int> &results, int total);
-    void PlayGameAndPrint(Agent &a1, Agent &a2);
+    PlayGamesResult PlayGames(int gamesPerTh, int threads, double eps, Agent &a1, Agent &a2);
+    static void PrintResults(PlayGamesResult results);
+    void PlayGameAndPrint(Agent &a1, Agent &a2, double eps);
 
 public:
-    DqnTrainEnv(std::shared_ptr<GameLogger> gameLogger, std::shared_ptr<InfoLogger> infoLogger, int agentMemory, int iterations);
+    DqnTrainEnv(std::shared_ptr<GameLogger> gameLogger, std::shared_ptr<InfoLogger> infoLogger, int agentMemory, int iterations, double eps,
+                double epsDecay);
 
     void Run() override;
 

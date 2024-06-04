@@ -63,5 +63,5 @@ Experience ReplayMemory::Randomize(const Experience &exp)
         Rotate(a);
         Rotate(r);
     }
-    return {s, a, exp.reward, exp.switchTurns, r};
+    return {s, a, exp.reward, exp.neg, r};
 }

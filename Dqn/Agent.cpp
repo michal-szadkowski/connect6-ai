@@ -60,8 +60,10 @@ torch::Tensor Agent::EvaluateBoard(const Board &board)
     t1 = t1.rot90(rot / 2, {2, 3});
     if (rot % 2)
         t1 = t1.flip({2});
+
     q1 = net->forward(t1);
-    q1 = q1 + 1 - t1[0][0].abs() * 4;
+    auto taken = t1[0][0].abs();
+    q1 = q1 - taken * 100;
     if (rot % 2)
         q1 = q1.flip({1});
     q1 = q1.rot90(4 - (rot / 2), {1, 2});
@@ -77,46 +79,24 @@ std::pair<StonePos, double> Agent::GetMove(const Board &board, double eps)
     auto r = torch::normal(0, eps * 0.1, {19, 19}).clamp(-1, 1).to(device);
     int posId;
     double c = 0;
-    // if (eps > Random::RandomDouble())
-    // {
-    //     pos = Random::SelectRandomElement(board.GetAllEmpty());
-    //     return {pos, 0};
-    // }
-    // if (stochastic)
-    // {
-    //     q1 = q1.squeeze(0).flatten();
-    //     q1 = q1.clamp(0, 2);
-    //     auto p = q1.cumsum(0);
-    //     p = p / p.max();
-    //     auto r = 1 - Random::RandomDouble();
-    //     posId = searchsorted(p, r, false, true).item<int>();
-    //     while (posId >= 19 * 19 || t1[0][0][posId / 19][posId % 19].item<int>() != 0)
-    //     {
-    //         posId++;
-    //         posId = posId % (19 * 19);
-    //     }
-    //     c = q1[posId].item<double>();
-    // }
-    // else
     auto eval = q + r;
-
     posId = eval.argmax().item<int>();
-    c = q[0][pos.GetX()][pos.GetY()].item<double>();
     pos = StonePos(posId / 19, posId % 19);
+    c = q[0][pos.GetX()][pos.GetY()].item<double>();
+
     return {pos, c};
 }
 
 
 double Agent::Train(int batches)
 {
-    // memory->RebuildWeights();
     double lossTotal = 0;
     const int sampleSize = 256;
     NNet net2;
     net2->to(device);
     for (int i = 0; i < batches; ++i)
     {
-        if (i % 50 == 0)
+        if (i % 500 == 0)
             CloneModel(*net2, *net);
         auto sample = memory->GetRandomSample(sampleSize);
         optimizer->zero_grad();
@@ -148,11 +128,15 @@ double Agent::Train(int batches)
             actions[j] = sample[j].action.first * 19 + sample[j].action.second;
         }
 
+
         auto target = q1.clone();
         auto argmax = q2p.argmax(1);
         auto maxval = q2.index({torch::arange(sampleSize), argmax}) * 0.99;
+
         for (int j = 0; j < sampleSize; j++)
         {
+            if (sample[j].neg)
+                maxval[j] = -maxval[j];
             if (sample[j].reward != 0)
                 maxval[j] = sample[j].reward;
         }
@@ -171,17 +155,18 @@ double Agent::Train(int batches)
 torch::Tensor Agent::Board2Tensor(const Board &board)
 {
     auto t = torch::zeros({2, BOARD_SIZE, BOARD_SIZE}, torch::kI8);
-    Color c = board.GetTurn();
     for (pos_t i = 0; i < BOARD_SIZE; ++i)
     {
         for (pos_t j = 0; j < BOARD_SIZE; ++j)
         {
-            if (board.Get({i, j}, c))
+            if (board.Get({i, j}, board.GetTurn()))
                 t[0][i][j] = 1;
-            else if (board.Get({i, j}, Reverse(c)))
+            else if (board.Get({i, j}, Reverse(board.GetTurn())))
                 t[0][i][j] = -1;
         }
     }
+    // t[1] = board.GetTurn() == Color::Black ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8)
+    //                                        : -torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
     t[1] =
         !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8) : torch::zeros({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
 
@@ -198,9 +183,9 @@ void Agent::Load(const std::string &path)
 
 void Agent::AddExperience(const Board &start, const StonePos &pos, const Board &result)
 {
-    memory->AddExperience({Agent::Board2Tensor(start),
-                           {pos.GetX(), pos.GetY()},
-                           result.GetResult() != Color::None ? 1.0 : 0,
-                           result.GetTurn() != start.GetTurn(),
-                           Agent::Board2Tensor(result)});
+    double reward = 0;
+    if (result.GetResult() != Color::None)
+        reward = 1;
+    memory->AddExperience(
+        {Agent::Board2Tensor(start), {pos.GetX(), pos.GetY()}, reward, result.GetTurn() != start.GetTurn(), Agent::Board2Tensor(result)});
 }
