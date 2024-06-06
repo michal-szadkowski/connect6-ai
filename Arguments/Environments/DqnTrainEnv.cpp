@@ -32,7 +32,7 @@ void DqnTrainEnv::Run()
     {
         auto s = std::chrono::high_resolution_clock::now();
 
-        const int games = 35;
+        const int games = 70;
         const int th = 10;
         std::cout << "it: " << i << " " << std::flush;
 
@@ -50,7 +50,7 @@ void DqnTrainEnv::Run()
         s = std::chrono::high_resolution_clock::now();
 
         const int evalGames = 10;
-        auto eval = PlayGames(evalGames, th, 0.01, agentCurrent, agentPrev);
+        auto eval = PlayGames(evalGames, th, 0.05, agentCurrent, agentPrev);
         PrintResults(eval);
 
         CheckPointModel(i);
@@ -82,7 +82,7 @@ void DqnTrainEnv::Run()
         std::cout << std::endl;
 
         if (i % 10 == 9)
-            PlayGameAndPrint(agentCurrent, agentPrev, 0.01);
+            PlayGameAndPrint(agentCurrent, agentPrev, 0.05);
     }
     SaveModel();
 }

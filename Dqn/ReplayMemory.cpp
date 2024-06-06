@@ -13,10 +13,10 @@ std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
     if (sampleSize > experiences.size())
         throw std::logic_error("not enough experiences to sample from");
     std::ranges::sample(experiences, std::back_insert_iterator(result), sampleSize, Random::GetGen());
-    for (int i = 0; i < sampleSize; i++)
-    {
-        result[i] = Randomize(result[i]);
-    }
+    // for (int i = 0; i < sampleSize; i++)
+    // {
+    //     result[i] = Randomize(result[i]);
+    // }
     return result;
 }
 

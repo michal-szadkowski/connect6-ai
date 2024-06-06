@@ -36,7 +36,7 @@ void Agent::CloneModel(torch::nn::Module &model, const torch::nn::Module &target
 }
 
 
-Agent::Agent(const Agent &agent) : memory(agent.memory), device(torch::Device(agent.device.type()))
+Agent::Agent(const Agent &agent) : device(torch::Device(agent.device.type())), memory(agent.memory)
 {
     net = NNet();
     CloneModel(*net, *(agent.net));
@@ -54,35 +54,46 @@ torch::Tensor Agent::EvaluateBoard(const Board &board)
 {
     torch::Tensor q1;
 
-    int rot = Random::RandomInRange(0, 8);
+    // int rot = Random::RandomInRange(0, 8);
 
     auto t1 = Board2Tensor(board).unsqueeze(0).to(device, torch::kF32);
-    t1 = t1.rot90(rot / 2, {2, 3});
-    if (rot % 2)
-        t1 = t1.flip({2});
+    // t1 = t1.rot90(rot / 2, {2, 3});
+    // if (rot % 2)
+    //     t1 = t1.flip({2});
 
     q1 = net->forward(t1);
+
     auto taken = t1[0][0].abs();
     q1 = q1 - taken * 100;
-    if (rot % 2)
-        q1 = q1.flip({1});
-    q1 = q1.rot90(4 - (rot / 2), {1, 2});
+
+    // if (rot % 2)
+    //     q1 = q1.flip({1});
+    // q1 = q1.rot90(4 - (rot / 2), {1, 2});
 
     return q1;
 }
 
 std::pair<StonePos, double> Agent::GetMove(const Board &board, double eps)
 {
+    torch::NoGradGuard noGrad;
     StonePos pos;
-
-    auto q = EvaluateBoard(board);
-    auto r = torch::normal(0, eps * 0.1, {19, 19}).clamp(-1, 1).to(device);
-    int posId;
     double c = 0;
-    auto eval = q + r;
-    posId = eval.argmax().item<int>();
-    pos = StonePos(posId / 19, posId % 19);
-    c = q[0][pos.GetX()][pos.GetY()].item<double>();
+
+    if (Random::RandomDouble() < eps)
+    {
+        pos = Random::SelectRandomElement(board.GetAllEmpty());
+    }
+    else
+    {
+
+        auto q = EvaluateBoard(board);
+        // auto r = torch::normal(0, eps * 0.1, {19, 19}).clamp(-1, 1).to(device);
+        int posId;
+        auto eval = q;
+        posId = eval.argmax().item<int>();
+        pos = StonePos(posId / 19, posId % 19);
+        c = q[0][pos.GetX()][pos.GetY()].item<double>();
+    }
 
     return {pos, c};
 }
@@ -96,7 +107,7 @@ double Agent::Train(int batches)
     net2->to(device);
     for (int i = 0; i < batches; ++i)
     {
-        if (i % 500 == 0)
+        if (i % 100 == 0)
             CloneModel(*net2, *net);
         auto sample = memory->GetRandomSample(sampleSize);
         optimizer->zero_grad();
@@ -165,8 +176,6 @@ torch::Tensor Agent::Board2Tensor(const Board &board)
                 t[0][i][j] = -1;
         }
     }
-    // t[1] = board.GetTurn() == Color::Black ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8)
-    //                                        : -torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
     t[1] =
         !board.ExpectingFullMove() ? torch::ones({BOARD_SIZE, BOARD_SIZE}, torch::kI8) : torch::zeros({BOARD_SIZE, BOARD_SIZE}, torch::kI8);
 
