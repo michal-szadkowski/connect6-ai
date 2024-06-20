@@ -11,22 +11,25 @@ class DqnPlayer final : public Player
 private:
     Agent agent;
     double eps;
-    double accWin = 0;
+    double avgWin = 0;
     int moveCnt = 0;
+
+    bool rememberActions = false;
 
     void AddExperienceFromOwnMove(const Board &board, const Move &move);
     StonePos GetPositionFromBoard(const Board &board);
 
 public:
-    DqnPlayer(const std::string &name, const Agent &agent, std::shared_ptr<InfoLogger> logger, double eps) :
-        Player(name, std::move(logger)), agent(agent), eps(eps)
+    DqnPlayer(const std::string &name, const Agent &agent, std::shared_ptr<InfoLogger> logger, double eps, bool rememberActions) :
+        Player(name, std::move(logger)), agent(agent), eps(eps), rememberActions(rememberActions)
     {}
 
 
     Move GetMove(const Board &board, const Move &prevMove) override;
 
 
-    double GetAccWin() { return accWin / moveCnt; };
+    double GetAccWin() { return avgWin; };
+    double GetMoveCnt() { return moveCnt; }
 };
 
 

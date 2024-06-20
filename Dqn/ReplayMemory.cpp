@@ -27,15 +27,14 @@ void ReplayMemory::AddExperience(const Experience &exp)
     std::lock_guard<std::mutex> lock{expmutex};
     if (experiences.size() >= maxSize)
     {
-        auto delPos = Random::RandomInRange(0, experiences.size());
-        experiences[delPos] = exp;
-        experiences[delPos].idx = delPos;
+        experiences[insertPos] = exp;
     }
     else
     {
         experiences.push_back(exp);
-        experiences[experiences.size() - 1].idx = experiences.size() - 1;
     }
+    insertPos++;
+    insertPos %= maxSize;
 }
 
 void ReplayMemory::Rotate(torch::Tensor &t) { t = t.rot90(1, {1, 2}); }
@@ -63,5 +62,5 @@ Experience ReplayMemory::Randomize(const Experience &exp)
         Rotate(a);
         Rotate(r);
     }
-    return {s, a, exp.reward, exp.neg, r};
+    return {s, a, exp.reward, exp.neg, exp.final, r};
 }

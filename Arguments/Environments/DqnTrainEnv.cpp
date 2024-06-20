@@ -32,17 +32,16 @@ void DqnTrainEnv::Run()
     {
         auto s = std::chrono::high_resolution_clock::now();
 
-        const int games = 70;
+        const int games = 100;
         const int th = 10;
         std::cout << "it: " << i << " " << std::flush;
 
-        auto results = PlayGames(games, th, eps, agentCurrent, agentCurrent);
+        auto results = PlayGames(games, th, true, eps, agentCurrent, agentCurrent);
         PrintResults(results);
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << " e:" << eps
                   << "\t" << std::flush;
         s = std::chrono::high_resolution_clock::now();
-
-        auto err = agentCurrent.Train(1000);
+        auto err = agentCurrent.Train(75);
         std::cout << "  " << err << " " << std::flush;
 
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - s) << "\t"
@@ -50,7 +49,7 @@ void DqnTrainEnv::Run()
         s = std::chrono::high_resolution_clock::now();
 
         const int evalGames = 10;
-        auto eval = PlayGames(evalGames, th, 0.05, agentCurrent, agentPrev);
+        auto eval = PlayGames(evalGames, th, false, 0.05, agentCurrent, agentPrev);
         PrintResults(eval);
 
         CheckPointModel(i);
@@ -108,7 +107,7 @@ void DqnTrainEnv::SaveModel()
 }
 
 
-PlayGamesResult DqnTrainEnv::PlayGames(int gamesPerTh, int threads, double eps, Agent &a1, Agent &a2)
+PlayGamesResult DqnTrainEnv::PlayGames(int gamesPerTh, int threads, bool remember, double eps, Agent &a1, Agent &a2)
 {
     torch::NoGradGuard noGrad;
     PlayGamesResult result;
@@ -120,11 +119,12 @@ PlayGamesResult DqnTrainEnv::PlayGames(int gamesPerTh, int threads, double eps, 
         paral.push_back(std::async(std::launch::async,
                                    [=]()
                                    {
-                                       auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, eps);
-                                       auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, eps);
+                                       auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, eps, remember);
+                                       auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, eps, remember);
                                        auto env = PlayEnv(p1, p2, gameLogger, gameLogger, gamesPerTh);
                                        auto res = env.PlayGames();
-                                       return PlayGamesResult{res.first, res.second, gamesPerTh, p1->GetAccWin(), p2->GetAccWin()};
+                                       return PlayGamesResult{res.first,       res.second,       gamesPerTh,      p1->GetAccWin(),
+                                                              p2->GetAccWin(), p1->GetMoveCnt(), p2->GetMoveCnt()};
                                    }));
     }
     for (int i = 0; i < threads; i++)
@@ -135,7 +135,11 @@ PlayGamesResult DqnTrainEnv::PlayGames(int gamesPerTh, int threads, double eps, 
         result.all += r.all;
         result.p1AccWin += r.p1AccWin;
         result.p2AccWin += r.p2AccWin;
+        result.p1MvCnt += r.p1MvCnt;
+        result.p2MvCnt += r.p2MvCnt;
     }
+    result.p1MvCnt /= result.all;
+    result.p2MvCnt /= result.all;
     result.p1AccWin /= result.all;
     result.p2AccWin /= result.all;
     return result;
@@ -144,14 +148,14 @@ PlayGamesResult DqnTrainEnv::PlayGames(int gamesPerTh, int threads, double eps, 
 void DqnTrainEnv::PrintResults(const PlayGamesResult results)
 {
     std::cout << results.p1 << " / " << results.all - results.p1 - results.p2 << " / " << results.p2 << " ";
-    std::cout << results.p1AccWin << " / " << results.p2AccWin << " " << std::flush;
+    std::cout << results.p1AccWin << " / " << results.p2AccWin << " " << results.p1MvCnt + results.p2MvCnt << " \t" << std::flush;
 }
 
 void DqnTrainEnv::PlayGameAndPrint(Agent &a1, Agent &a2, double eps)
 {
     auto gameLogger = std::make_shared<NoLogger>();
-    auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, eps);
-    auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, eps);
+    auto p1 = std::make_shared<DqnPlayer>("p1", a1, gameLogger, eps, false);
+    auto p2 = std::make_shared<DqnPlayer>("p2", a2, gameLogger, eps, false);
 
     auto game = Game(*p1, *p2, this->gameLogger);
     game.Play();

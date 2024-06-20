@@ -17,7 +17,13 @@ int main(int argc, const char *argv[])
     EnvironmentCreator ec(args);
     auto env = ec.Create();
     env->Run();
-
+    //
+    // auto q = torch::zeros({3, 5, 5});
+    // q[0][1][1] = 1;
+    // q[1][2][1] = 1;
+    // q[2][3][1] = 1;
+    // auto a = q.flatten(1, 2).argmax(1);
+    // std::cout << a;
 
     return 0;
 }

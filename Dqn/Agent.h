@@ -15,7 +15,7 @@ private:
 
     static torch::Tensor Board2Tensor(const Board &board);
     static void CloneModel(torch::nn::Module &model, const torch::nn::Module &target_model);
-    torch::Tensor EvaluateBoard(const Board &board);
+    torch::Tensor EvaluateBoard(torch::Tensor board, bool minimize);
 
 
 public:
@@ -26,13 +26,14 @@ public:
         memory = std::make_shared<ReplayMemory>(memSize);
         net = NNet();
         net->to(device);
-        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(1e-7).weight_decay(0.0001));
+        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(1e-5));
     }
 
     Agent(const Agent &agent);
     void ToDevice(torch::Device device);
 
     std::pair<StonePos, double> GetMove(const Board &board, double eps = 0);
+    torch::Tensor GetTaken(torch::Tensor input);
     double Train(int batches);
     void AddExperience(const Board &start, const StonePos &pos, const Board &result);
 

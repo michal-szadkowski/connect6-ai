@@ -10,16 +10,16 @@
 
 struct Experience
 {
-    int idx;
     torch::Tensor start;
     std::pair<int, int> action;
     double reward = 0;
     bool neg = false;
+    bool final = false;
     torch::Tensor result;
 
     Experience() = default;
-    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool neg, torch::Tensor result) :
-        start(std::move(start)), action(action), reward(reward), neg(neg), result(std::move(result))
+    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool neg, bool final, torch::Tensor result) :
+        start(std::move(start)), action(action), reward(reward), neg(neg), final(final), result(std::move(result))
     {}
 };
 
@@ -29,9 +29,8 @@ private:
     std::mutex expmutex;
     int maxSize;
     std::vector<Experience> experiences;
+    int insertPos = 0;
 
-    std::discrete_distribution<int> distr;
-    std::vector<double> weights;
 
     static Experience Randomize(const Experience &exp);
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(connect6_ai)
 
-set(CMAKE_CUDA_ARCHITECTURES 61)
+set(CMAKE_C_COMPILER gcc-13)
 set(CMAKE_CUDA_COMPILER /opt/cuda/bin/nvcc)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_STANDARD 23)

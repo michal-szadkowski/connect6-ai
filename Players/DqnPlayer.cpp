@@ -13,16 +13,17 @@ Move DqnPlayer::GetMove(const Board &board, const Move &prevMove)
     {
         p2 = GetPositionFromBoard(b2);
     }
-
-    AddExperienceFromOwnMove(board, {p1, p2, this->GetColor()});
+    if (rememberActions)
+        AddExperienceFromOwnMove(board, {p1, p2, this->GetColor()});
     return {p1, p2, this->GetColor()};
 }
 
 StonePos DqnPlayer::GetPositionFromBoard(const Board &board)
 {
     auto [result2, c] = agent.GetMove(board, eps);
-    accWin += c;
-    moveCnt++;
+    avgWin += moveCnt * avgWin + c;
+    moveCnt += 1;
+    avgWin /= moveCnt;
 
     return result2;
 }

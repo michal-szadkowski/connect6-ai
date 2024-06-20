@@ -137,7 +137,7 @@ std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string &n
 
     Agent agent(0);
     agent.Load(in);
-    return std::make_shared<DqnPlayer>(name, agent, infoLogger, false);
+    return std::make_shared<DqnPlayer>(name, agent, infoLogger, 0.05, false);
 }
 
 void EnvironmentCreator::SetLogger()

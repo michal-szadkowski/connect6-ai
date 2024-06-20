@@ -7,7 +7,7 @@
 #include "Move.h"
 
 // assuming 19x19 board
-#define BOARD_SIZE 19
+#define BOARD_SIZE 13
 
 
 class Board
@@ -37,14 +37,14 @@ public:
 
     bool IsEmpty(const StonePos &pos) const;
 
-        bool Get(const StonePos &pos, Color color) const;
-        Color PutStone(const StonePos &pos, Color stoneColor);
+    bool Get(const StonePos &pos, Color color) const;
+    Color PutStone(const StonePos &pos, Color stoneColor);
 
-        Color GetTurn() const;
-        Color GetResult() const;
+    Color GetTurn() const;
+    Color GetResult() const;
 
-        int StonesPlacedCount() const;
-        bool ExpectingFullMove() const;
+    int StonesPlacedCount() const;
+    bool ExpectingFullMove() const;
 };
 
 
