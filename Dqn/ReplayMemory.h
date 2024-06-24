@@ -18,9 +18,9 @@ struct Experience
     torch::Tensor result;
 
     Experience() = default;
-    Experience(torch::Tensor start, const std::pair<int, int> &action, double reward, bool neg, bool final, torch::Tensor result) :
-        start(std::move(start)), action(action), reward(reward), neg(neg), final(final), result(std::move(result))
-    {}
+
+    Experience(torch::Tensor start, const std::pair<int, int>& action, double reward, bool neg, bool final, torch::Tensor result) :
+        start(std::move(start)), action(action), reward(reward), neg(neg), final(final), result(std::move(result)) {}
 };
 
 class ReplayMemory
@@ -32,17 +32,18 @@ private:
     int insertPos = 0;
 
 
-    static Experience Randomize(const Experience &exp);
+    static Experience Randomize(const Experience& exp);
+    Experience Invert(const Experience& exp);
 
 public:
-    static void Rotate(torch::Tensor &t);
-    static void Rotate(std::pair<int, int> &p);
-    static void Flip(torch::Tensor &t);
-    static void Flip(std::pair<int, int> &p);
+    static void Rotate(torch::Tensor& t);
+    static void Rotate(std::pair<int, int>& p);
+    static void Flip(torch::Tensor& t);
+    static void Flip(std::pair<int, int>& p);
 
     ReplayMemory(int maxSize) : maxSize(maxSize) { experiences.reserve(maxSize); }
     std::vector<Experience> GetRandomSample(int sampleSize);
-    void AddExperience(const Experience &exp);
+    void AddExperience(const Experience& exp);
 };
 
 

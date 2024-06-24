@@ -2,23 +2,20 @@
 
 #include "../Random.h"
 
-Move DqnPlayer::GetMove(const Board &board, const Move &prevMove)
+Move DqnPlayer::GetMove(const Board& board, const Move& prevMove)
 {
     auto p1 = GetPositionFromBoard(board);
     Board b2 = board;
     b2.PutStone(p1, this->GetColor());
 
     auto p2 = StonePos::Empty();
-    if (b2.GetResult() == Color::None && board.ExpectingFullMove())
-    {
-        p2 = GetPositionFromBoard(b2);
-    }
+    if (b2.GetResult() == Color::None && board.ExpectingFullMove()) { p2 = GetPositionFromBoard(b2); }
     if (rememberActions)
         AddExperienceFromOwnMove(board, {p1, p2, this->GetColor()});
     return {p1, p2, this->GetColor()};
 }
 
-StonePos DqnPlayer::GetPositionFromBoard(const Board &board)
+StonePos DqnPlayer::GetPositionFromBoard(const Board& board)
 {
     auto [result2, c] = agent.GetMove(board, eps);
     avgWin += moveCnt * avgWin + c;
@@ -28,7 +25,7 @@ StonePos DqnPlayer::GetPositionFromBoard(const Board &board)
     return result2;
 }
 
-void DqnPlayer::AddExperienceFromOwnMove(const Board &board, const Move &move)
+void DqnPlayer::AddExperienceFromOwnMove(const Board& board, const Move& move)
 {
     Board b2 = board;
     auto first = move.GetFirst();

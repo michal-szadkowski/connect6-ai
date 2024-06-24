@@ -56,6 +56,8 @@ add_executable(connect6_ai main.cpp
         Dqn/FusedMBConv.h
         Dqn/FusedMBConv.h
         Dqn/MBConv.h
+        Dqn/SqExBlock.h
+        Dqn/SEResBlock.h
 )
 target_link_libraries(connect6_ai "${TORCH_LIBRARIES}")
 target_include_directories(connect6_ai PRIVATE ${TORCH_LIBRARIES})
