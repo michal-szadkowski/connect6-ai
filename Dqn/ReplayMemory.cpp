@@ -20,36 +20,30 @@ std::vector<Experience> ReplayMemory::GetRandomSample(int sampleSize)
     return result;
 }
 
-void ReplayMemory::AddExperience(const Experience &exp)
+void ReplayMemory::AddExperience(const Experience& exp)
 {
     if (maxSize == 0)
         return;
     std::lock_guard<std::mutex> lock{expmutex};
-    if (experiences.size() >= maxSize)
-    {
-        experiences[insertPos] = exp;
-    }
-    else
-    {
-        experiences.push_back(exp);
-    }
+    if (experiences.size() >= maxSize) { experiences[insertPos] = exp; }
+    else { experiences.push_back(exp); }
     insertPos++;
     insertPos %= maxSize;
 }
 
-void ReplayMemory::Rotate(torch::Tensor &t) { t = t.rot90(1, {1, 2}); }
+void ReplayMemory::Rotate(torch::Tensor& t) { t = t.rot90(1, {1, 2}); }
 
-void ReplayMemory::Rotate(std::pair<int, int> &p)
+void ReplayMemory::Rotate(std::pair<int, int>& p)
 {
     const auto tmp = p.second;
     p.second = p.first;
     p.first = 18 - tmp;
 }
 
-void ReplayMemory::Flip(torch::Tensor &t) { t = t.flip({1}); }
-void ReplayMemory::Flip(std::pair<int, int> &p) { p.first = 18 - p.first; }
+void ReplayMemory::Flip(torch::Tensor& t) { t = t.flip({1}); }
+void ReplayMemory::Flip(std::pair<int, int>& p) { p.first = 18 - p.first; }
 
-Experience ReplayMemory::Randomize(const Experience &exp)
+Experience ReplayMemory::Randomize(const Experience& exp)
 {
     auto s = exp.start;
     auto a = exp.action;

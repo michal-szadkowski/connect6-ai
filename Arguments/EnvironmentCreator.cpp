@@ -81,7 +81,7 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
             return CreateTrainEnv();
         return nullptr;
     }
-    catch (std::exception &e)
+    catch (std::exception& e)
     {
         std::cout << e.what();
         PrintUsage();
@@ -89,31 +89,19 @@ std::shared_ptr<Environment> EnvironmentCreator::Create()
     return nullptr;
 }
 
-std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string &name)
+std::shared_ptr<Player> EnvironmentCreator::GetPlayer(const std::string& name)
 {
     std::string type;
     if (!args.TryGetT(name, type))
         throw std::logic_error("No parameter for player " + name);
-    if (type == "mcts")
-    {
-        return GetMctsPlayer(name);
-    }
-    if (type == "human")
-    {
-        return std::make_unique<HumanPlayer>(name, infoLogger);
-    }
-    if (type == "dqn")
-    {
-        return GetDqnPlayer(name);
-    }
-    if (type == "random")
-    {
-        return std::make_unique<RandomPlayer>(name, infoLogger);
-    }
+    if (type == "mcts") { return GetMctsPlayer(name); }
+    if (type == "human") { return std::make_unique<HumanPlayer>(name, infoLogger); }
+    if (type == "dqn") { return GetDqnPlayer(name); }
+    if (type == "random") { return std::make_unique<RandomPlayer>(name, infoLogger); }
     throw std::logic_error("Invalid player for " + name);
 }
 
-std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string &name)
+std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string& name)
 {
     std::string prefix = name + "-mcts-";
     int expCount = 350000;
@@ -126,7 +114,7 @@ std::shared_ptr<MctsPlayer> EnvironmentCreator::GetMctsPlayer(const std::string 
     return std::make_unique<MctsPlayer>(name, infoLogger, expCount, simCount, expRate);
 }
 
-std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string &name)
+std::shared_ptr<DqnPlayer> EnvironmentCreator::GetDqnPlayer(const std::string& name)
 {
     std::string prefix = name + "-dqn-";
 
