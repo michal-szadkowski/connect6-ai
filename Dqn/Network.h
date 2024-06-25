@@ -64,14 +64,14 @@ struct NNetImpl : torch::nn::Module
 
     torch::nn::Sequential l1{torch::nn::Conv2d(torch::nn::Conv2dOptions(3, 32, 3).padding(1)), torch::nn::LeakyReLU()};
     torch::nn::Sequential l2{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::LeakyReLU()};
-    torch::nn::Sequential l3{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
-    torch::nn::Sequential l4{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
+    torch::nn::Sequential l3{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::LeakyReLU()};
+    torch::nn::Sequential l4{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::LeakyReLU()};
     // torch::nn::Sequential l5{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
     // torch::nn::Sequential l6{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
     // torch::nn::Sequential l7{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
     // torch::nn::Sequential l8{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 32, 3).padding(1)), torch::nn::ReLU()};
 
-    torch::nn::Sequential onebyone{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 8, 1)), torch::nn::ReLU(),};
+    torch::nn::Sequential onebyone{torch::nn::Conv2d(torch::nn::Conv2dOptions(32, 8, 1)), torch::nn::LeakyReLU(),};
 
     torch::nn::Linear fc1{BOARD_SIZE * BOARD_SIZE * 8, BOARD_SIZE * BOARD_SIZE * 8};
     torch::nn::Linear fc2{BOARD_SIZE * BOARD_SIZE * 8, BOARD_SIZE * BOARD_SIZE * 8};

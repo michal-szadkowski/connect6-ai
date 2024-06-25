@@ -27,7 +27,7 @@ public:
         memory = std::make_shared<ReplayMemory>(memSize);
         net = NNet();
         net->to(device);
-        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(2e-6).weight_decay(1e-5));
+        optimizer = std::make_shared<torch::optim::RMSprop>(net->parameters(), torch::optim::RMSpropOptions(1e-6).weight_decay(1e-5));
     }
 
     Agent(const Agent& agent);
