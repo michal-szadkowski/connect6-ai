@@ -62,7 +62,7 @@ torch::Tensor Agent::EvaluateBoard(torch::Tensor board, bool minimize)
     return q1;
 }
 
-std::pair<StonePos, double> Agent::GetMove(const Board& board, double eps)
+std::pair<StonePos, double> Agent::GetAction(const Board& board, double eps)
 {
     torch::NoGradGuard noGrad;
     StonePos pos;

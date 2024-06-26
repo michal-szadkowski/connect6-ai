@@ -45,8 +45,8 @@ class DqnTrainEnv final : public Environment
 
     void LoadModel();
     void CheckPointModel(int i);
-
     void SaveModel();
+
     PlayGamesResult PlayGames(Agent& a1, Agent& a2, int gamesPerTh, int threads, bool remember, double eps);
     static void PrintResults(PlayGamesResult results);
     void PlayGameAndPrint(Agent& a1, Agent& a2, double eps);

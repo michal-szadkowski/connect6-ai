@@ -17,7 +17,7 @@ private:
 
     bool rememberActions = false;
 
-    void AddExperienceFromOwnMove(const Board& board, const Move& move);
+    void AddExperienceFromMove(const Board& board, const Move& move);
     StonePos GetPositionFromBoard(const Board& board);
 
 public:

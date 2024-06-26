@@ -34,7 +34,7 @@ public:
 
     void ToDevice(torch::Device device);
 
-    std::pair<StonePos, double> GetMove(const Board& board, double eps = 0);
+    std::pair<StonePos, double> GetAction(const Board& board, double eps = 0);
 
     torch::Tensor GetTaken(const torch::Tensor& input);
 
